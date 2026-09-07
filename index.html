@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>India Job & Internship Finder — MNC listings, matched to you</title>
-<meta name="description" content="Find internships and jobs at MNCs hiring in India, matched to your description. Pulls live listings straight from company career systems, plus a directory of genuine staffing agencies.">
+<meta name="description" content="Find internships and jobs at MNCs hiring in India, matched to your description. Internships stay internships. Pulls live listings from company career systems, plus staffing agencies, big-MNC career pages, and a map.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
   :root {
     --paper: #F4EEDF;
@@ -75,7 +76,7 @@
     line-height: 1.08;
   }
 
-  .tagline { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; color: var(--ink-soft); font-size: 1.02rem; margin: 0; max-width: 34ch; }
+  .tagline { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; color: var(--ink-soft); font-size: 1.02rem; margin: 0; max-width: 38ch; }
 
   section { padding-left: 2.4rem; }
   @media (max-width: 480px) { section { padding-left: 1.4rem; } }
@@ -93,6 +94,7 @@
   }
   .mode-toggle button + button { border-left: 1.5px solid var(--ink); }
   .mode-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .mode-note { font-size: 0.83rem; color: var(--ink-soft); margin: 0.5rem 0 0; }
 
   .field-group { margin: 1.7rem 0 0; }
   label { display: block; font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 0.4rem; }
@@ -166,17 +168,30 @@
   .empty, .error { padding: 2.2rem 0; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 0.98rem; }
   .error { color: var(--margin); }
 
-  .toolbar { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2rem; flex-wrap: wrap; gap: 0.6rem; }
+  .toolbar { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2rem; flex-wrap: wrap; gap: 0.6rem 1.2rem; }
   .toolbar h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.05rem; margin: 0; }
-  .toolbar button.csv { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; background: none; border: 1px solid var(--ink-soft); color: var(--ink-soft); padding: 0.35rem 0.7rem; cursor: pointer; }
-  .toolbar button.csv:hover { border-color: var(--margin); color: var(--margin); }
-
-  .section-heading {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 1.4rem;
-    margin: 3.4rem 0 0.3rem;
+  .toolbar .btn-group { display: flex; gap: 0.6rem; }
+  .toolbar button.csv, .toolbar button.mapbtn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; background: none;
+    border: 1px solid var(--ink-soft); color: var(--ink-soft); padding: 0.35rem 0.7rem; cursor: pointer;
   }
+  .toolbar button.csv:hover, .toolbar button.mapbtn:hover { border-color: var(--margin); color: var(--margin); }
+  .toolbar button.mapbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .map-wrap { margin-top: 1.2rem; }
+  .map-search { display: flex; gap: 0.6rem; margin-bottom: 0.6rem; }
+  .map-search input { flex: 1; }
+  .map-search button {
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; background: var(--ink); color: var(--paper);
+    border: none; padding: 0.4rem 0.9rem; cursor: pointer;
+  }
+  .map-search button:hover { background: var(--margin); }
+  #map { height: 420px; border: 1.5px solid var(--ink); }
+  .leaflet-popup-content { font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; }
+  .leaflet-popup-content b { font-family: 'Fraunces', serif; }
+  .map-popup-job { display: block; margin: 0.25rem 0; color: var(--ink); text-decoration: underline; }
+
+  .section-heading { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.4rem; margin: 3.4rem 0 0.3rem; }
   .section-sub { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 1.4rem; max-width: 48ch; }
 
   .agency-list { border-top: 1px solid var(--rule); }
@@ -186,12 +201,7 @@
   .agency a.visit { font-size: 0.85rem; color: var(--sage); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; white-space: nowrap; }
   .agency p { font-size: 0.9rem; color: var(--ink-soft); margin: 0.3rem 0 0; }
 
-  .safety {
-    margin-top: 3.4rem;
-    padding: 1.2rem 1.3rem;
-    border: 1.5px solid var(--margin);
-    background: rgba(168, 64, 42, 0.06);
-  }
+  .safety { margin-top: 3.4rem; padding: 1.2rem 1.3rem; border: 1.5px solid var(--margin); background: rgba(168, 64, 42, 0.06); }
   .safety h4 { font-family: 'Fraunces', serif; margin: 0 0 0.5rem; font-size: 1rem; color: var(--margin); }
   .safety ul { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; color: var(--ink); }
   .safety li { margin-bottom: 0.3rem; }
@@ -211,7 +221,7 @@
       <span class="eyebrow-text">Built for the Indian job market</span>
     </div>
     <h1>Job &amp; Internship Finder</h1>
-    <p class="tagline">Describe what you want. It reads live openings at MNCs hiring in India and ranks them for you.</p>
+    <p class="tagline">Describe what you want. It reads live openings at MNCs hiring in India and ranks them for you — internships only stay internships.</p>
   </header>
 
   <section>
@@ -220,10 +230,11 @@
         <button type="button" data-mode="student" aria-pressed="true">Student / fresher — internship</button>
         <button type="button" data-mode="professional" aria-pressed="false">Professional — job</button>
       </div>
+      <p class="mode-note" id="mode-note">Only internship, trainee, and campus-hire postings will be shown.</p>
 
       <div class="field-group">
         <label for="description">What are you looking for?</label>
-        <textarea id="description" required placeholder="e.g. Final-year CS student, good with Python and React, looking for a 6-month software engineering internship"></textarea>
+        <textarea id="description" required placeholder="e.g. Final-year ECE student, networking basics, CCNA in progress, looking for a network engineer internship"></textarea>
       </div>
 
       <div class="row">
@@ -253,11 +264,11 @@
         <div class="row">
           <div class="field-group">
             <label for="min-score">Minimum match (0–100)</label>
-            <input type="text" id="min-score" value="6" inputmode="numeric">
+            <input type="text" id="min-score" value="4" inputmode="numeric">
           </div>
           <div class="field-group">
             <label for="top-n">How many results</label>
-            <input type="text" id="top-n" value="20" inputmode="numeric">
+            <input type="text" id="top-n" value="25" inputmode="numeric">
           </div>
         </div>
         <div class="field-group" style="display:flex; align-items:center; gap:0.5rem; margin-top:1.3rem;">
@@ -281,7 +292,19 @@
 
     <div class="toolbar" id="toolbar" hidden>
       <h3 id="results-heading"></h3>
-      <button class="csv" id="csv-btn">Download CSV</button>
+      <div class="btn-group">
+        <button class="mapbtn" id="map-toggle-btn" aria-pressed="false">Show on map</button>
+        <button class="csv" id="csv-btn">Download CSV</button>
+      </div>
+    </div>
+
+    <div class="map-wrap" id="map-wrap" hidden>
+      <div class="map-search">
+        <input type="text" id="map-search-input" list="city-options" placeholder="Jump to a city (e.g. Hyderabad, London, Singapore)">
+        <datalist id="city-options"></datalist>
+        <button type="button" id="map-search-btn">Locate</button>
+      </div>
+      <div id="map"></div>
     </div>
 
     <div class="results" id="results"></div>
@@ -297,16 +320,23 @@
   </section>
 
   <section>
+    <h2 class="section-heading">Big MNCs &amp; IT majors — career pages</h2>
+    <p class="section-sub">These employ the largest numbers of freshers and professionals in India but run their own hiring systems (Workday, SuccessFactors, custom portals) without a public API, so they're not in the live search above — go straight to their pages.</p>
+    <div class="agency-list" id="bigmnc-list"></div>
+  </section>
+
+  <section>
     <h2 class="section-heading">Staffing &amp; recruitment agencies in India</h2>
     <p class="section-sub">Established firms that place candidates into MNCs and large Indian companies. Verify current openings on their own sites — this list doesn't fetch live data.</p>
     <div class="agency-list" id="agency-list"></div>
   </section>
 
   <footer>
-    <p>MNC listings are fetched live, directly from each company's own applicant tracking system (Greenhouse, Lever, or Ashby) — the same data their own careers page shows. Matching runs in your browser; your description is never sent anywhere. Optional Adzuna coverage requires your own free API key.</p>
+    <p>MNC listings above are fetched live, directly from each company's own applicant tracking system (Greenhouse, Lever, or Ashby) — the same data their careers page shows. Matching runs in your browser; your description is never sent anywhere. Optional Adzuna coverage requires your own free API key. Map tiles © OpenStreetMap contributors.</p>
   </footer>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 (function () {
   "use strict";
@@ -317,38 +347,123 @@
   // (engineering/GCC/regional offices) or fully remote-first hiring open to India.
   // Add more anytime — each entry just needs { name, ats, token }.
   var SOURCES = [
-    { name: "Cloudflare",   ats: "greenhouse", token: "cloudflare" },
-    { name: "MongoDB",      ats: "greenhouse", token: "mongodb" },
-    { name: "Okta",         ats: "greenhouse", token: "okta" },
-    { name: "Twilio",       ats: "greenhouse", token: "twilio" },
-    { name: "Intercom",     ats: "greenhouse", token: "intercom" },
-    { name: "GoDaddy",      ats: "greenhouse", token: "godaddy" },
-    { name: "Grammarly",    ats: "greenhouse", token: "grammarly" },
-    { name: "Workato",      ats: "greenhouse", token: "workato" },
-    { name: "Groww",        ats: "greenhouse", token: "groww" },
-    { name: "Postman",      ats: "greenhouse", token: "postman" },
-    { name: "Adyen",        ats: "greenhouse", token: "adyen" },
-    { name: "Zscaler",      ats: "greenhouse", token: "zscaler" },
-    { name: "Appian",       ats: "greenhouse", token: "appian" },
-    { name: "Mixpanel",     ats: "greenhouse", token: "mixpanel" },
-    { name: "GitLab",       ats: "greenhouse", token: "gitlab" },
-    { name: "Roblox",       ats: "greenhouse", token: "roblox" },
-    { name: "Scale AI",     ats: "greenhouse", token: "scaleai" },
-    { name: "Wrike",        ats: "greenhouse", token: "wrike" },
-    { name: "Contentstack", ats: "greenhouse", token: "contentstack" },
-    { name: "HubSpot",      ats: "greenhouse", token: "hubspot" },
-    { name: "Fastly",       ats: "greenhouse", token: "fastly" },
-    { name: "Atlassian",    ats: "lever", token: "atlassian" },
-    { name: "Toptal",       ats: "lever", token: "toptal" },
-    { name: "Deel",         ats: "ashby", token: "deel" },
-    { name: "ClickUp",      ats: "ashby", token: "clickup" },
-    { name: "Cursor",       ats: "ashby", token: "cursor" }
+    { name: "Cloudflare",    ats: "greenhouse", token: "cloudflare" },
+    { name: "MongoDB",       ats: "greenhouse", token: "mongodb" },
+    { name: "Okta",          ats: "greenhouse", token: "okta" },
+    { name: "Twilio",        ats: "greenhouse", token: "twilio" },
+    { name: "Intercom",      ats: "greenhouse", token: "intercom" },
+    { name: "GoDaddy",       ats: "greenhouse", token: "godaddy" },
+    { name: "Grammarly",     ats: "greenhouse", token: "grammarly" },
+    { name: "Workato",       ats: "greenhouse", token: "workato" },
+    { name: "Groww",         ats: "greenhouse", token: "groww" },
+    { name: "Postman",       ats: "greenhouse", token: "postman" },
+    { name: "Adyen",         ats: "greenhouse", token: "adyen" },
+    { name: "Zscaler",       ats: "greenhouse", token: "zscaler" },
+    { name: "Appian",        ats: "greenhouse", token: "appian" },
+    { name: "Mixpanel",      ats: "greenhouse", token: "mixpanel" },
+    { name: "GitLab",        ats: "greenhouse", token: "gitlab" },
+    { name: "Roblox",        ats: "greenhouse", token: "roblox" },
+    { name: "Scale AI",      ats: "greenhouse", token: "scaleai" },
+    { name: "Wrike",         ats: "greenhouse", token: "wrike" },
+    { name: "Contentstack",  ats: "greenhouse", token: "contentstack" },
+    { name: "HubSpot",       ats: "greenhouse", token: "hubspot" },
+    { name: "Fastly",        ats: "greenhouse", token: "fastly" },
+    { name: "Datadog",       ats: "greenhouse", token: "datadog" },
+    { name: "Discord",       ats: "greenhouse", token: "discord" },
+    { name: "Dropbox",       ats: "greenhouse", token: "dropbox" },
+    { name: "Coinbase",      ats: "greenhouse", token: "coinbase" },
+    { name: "Elastic",       ats: "greenhouse", token: "elastic" },
+    { name: "Contentful",    ats: "greenhouse", token: "contentful" },
+    { name: "Klaviyo",       ats: "greenhouse", token: "klaviyo" },
+    { name: "SurveyMonkey",  ats: "greenhouse", token: "surveymonkey" },
+    { name: "Amplitude",     ats: "greenhouse", token: "amplitude" },
+    { name: "Algolia",       ats: "greenhouse", token: "algolia" },
+    { name: "Braze",         ats: "greenhouse", token: "braze" },
+    { name: "Carta",         ats: "greenhouse", token: "carta" },
+    { name: "Coursera",      ats: "greenhouse", token: "coursera" },
+    { name: "Robinhood",     ats: "greenhouse", token: "robinhood" },
+    { name: "Reddit",        ats: "greenhouse", token: "reddit" },
+    { name: "Squarespace",   ats: "greenhouse", token: "squarespace" },
+    { name: "Duolingo",      ats: "greenhouse", token: "duolingo" },
+    { name: "Airbnb",        ats: "greenhouse", token: "airbnb" },
+    { name: "Stripe",        ats: "greenhouse", token: "stripe" },
+    { name: "Vercel",        ats: "greenhouse", token: "vercel" },
+    { name: "Atlassian",     ats: "lever", token: "atlassian" },
+    { name: "Toptal",        ats: "lever", token: "toptal" },
+    { name: "Spotify",       ats: "lever", token: "spotify" },
+    { name: "Palantir",      ats: "lever", token: "palantir" },
+    { name: "Plaid",         ats: "lever", token: "plaid" },
+    { name: "Deel",          ats: "ashby", token: "deel" },
+    { name: "ClickUp",       ats: "ashby", token: "clickup" },
+    { name: "Cursor",        ats: "ashby", token: "cursor" },
+    { name: "Notion",        ats: "ashby", token: "notion" },
+    { name: "OpenAI",        ats: "ashby", token: "openai" },
+    { name: "Perplexity",    ats: "ashby", token: "perplexity" },
+    { name: "Ramp",          ats: "ashby", token: "ramp" },
+    { name: "Retool",        ats: "ashby", token: "retool" },
+    { name: "Snyk",          ats: "ashby", token: "snyk" },
+    { name: "WorkOS",        ats: "ashby", token: "workos" }
   ];
 
   var INDIA_KEYWORDS = [
     "india", "bengaluru", "bangalore", "mumbai", "delhi", "gurgaon", "gurugram",
     "noida", "hyderabad", "pune", "chennai", "kolkata", "ahmedabad", "bhubaneswar",
-    "jaipur", "kochi", "coimbatore", "indore"
+    "jaipur", "kochi", "coimbatore", "indore", "chandigarh"
+  ];
+
+  // City/region -> [lat, lng] for the map. Matched against job location strings.
+  var CITY_COORDS = {
+    "bengaluru": [12.9716, 77.5946], "bangalore": [12.9716, 77.5946],
+    "mumbai": [19.0760, 72.8777],
+    "new delhi": [28.6139, 77.2090], "delhi": [28.7041, 77.1025],
+    "gurugram": [28.4595, 77.0266], "gurgaon": [28.4595, 77.0266],
+    "noida": [28.5355, 77.3910],
+    "hyderabad": [17.3850, 78.4867],
+    "pune": [18.5204, 73.8567],
+    "chennai": [13.0827, 80.2707],
+    "kolkata": [22.5726, 88.3639],
+    "ahmedabad": [23.0225, 72.5714],
+    "jaipur": [26.9124, 75.7873],
+    "kochi": [9.9312, 76.2673],
+    "coimbatore": [11.0168, 76.9558],
+    "indore": [22.7196, 75.8577],
+    "chandigarh": [30.7333, 76.7794],
+    "bhubaneswar": [20.2961, 85.8245],
+    "san francisco": [37.7749, -122.4194], "bay area": [37.7749, -122.4194],
+    "new york": [40.7128, -74.0060],
+    "chicago": [41.8781, -87.6298],
+    "austin": [30.2672, -97.7431],
+    "seattle": [47.6062, -122.3321],
+    "toronto": [43.6532, -79.3832],
+    "london": [51.5074, -0.1278],
+    "dublin": [53.3498, -6.2603],
+    "amsterdam": [52.3676, 4.9041],
+    "berlin": [52.5200, 13.4050],
+    "paris": [48.8566, 2.3522],
+    "singapore": [1.3521, 103.8198],
+    "sydney": [-33.8688, 151.2093],
+    "tokyo": [35.6762, 139.6503],
+    "dubai": [25.2048, 55.2708]
+  };
+  var CITY_LABELS = Object.keys(CITY_COORDS);
+
+  var BIG_MNCS = [
+    { name: "Google", url: "https://www.google.com/about/careers/applications/", blurb: "Search openings across all locations, including Bengaluru, Gurugram, Hyderabad, and Mumbai." },
+    { name: "Microsoft India", url: "https://careers.microsoft.com/v2/global/en/locations/india.html", blurb: "India-specific listings across Bengaluru, Gurugram, Hyderabad, Mumbai, and Noida." },
+    { name: "Amazon India", url: "https://www.amazon.jobs/en/search?base_query=&country=IND&loc_query=India", blurb: "All Amazon India roles, filterable by team and city." },
+    { name: "IBM", url: "https://www.ibm.com/careers", blurb: "Global careers portal; filter by India location." },
+    { name: "Accenture India", url: "https://www.accenture.com/in-en/careers", blurb: "One of India's largest private employers — entry-level and experienced hiring." },
+    { name: "TCS", url: "https://www.tcs.com/careers/india", blurb: "Tata Consultancy Services — also see their dedicated internship page." },
+    { name: "Infosys", url: "https://www.infosys.com/careers.html", blurb: "Careers for students, graduates, and professionals." },
+    { name: "Wipro", url: "https://careers.wipro.com/", blurb: "Fresher and lateral hiring across India." },
+    { name: "Cognizant", url: "https://careers.cognizant.com/global-en/", blurb: "Global careers site with India-specific filters." },
+    { name: "HCLTech", url: "https://www.hcltech.com/careers", blurb: "IT services careers, including campus programs." },
+    { name: "Capgemini India", url: "https://www.capgemini.com/in-en/careers/", blurb: "Entry-level and experienced technology and consulting roles." },
+    { name: "Deloitte India", url: "https://www2.deloitte.com/in/en/careers.html", blurb: "Consulting, audit, and technology careers." },
+    { name: "EY India", url: "https://www.ey.com/en_in/careers", blurb: "Professional services careers across India." },
+    { name: "JPMorganChase", url: "https://careers.jpmorgan.com/", blurb: "Technology and finance roles, several based in India GCCs." },
+    { name: "SAP", url: "https://www.sap.com/about/careers.html", blurb: "Enterprise software careers, including SAP Labs India (Bengaluru, Gurugram, Pune)." },
+    { name: "Cisco", url: "https://jobs.cisco.com/", blurb: "Networking and infrastructure roles — relevant for network engineering candidates." }
   ];
 
   var AGENCIES = [
@@ -368,6 +483,28 @@
 
   var currentMode = "student";
   var lastResults = [];
+  var mapInstance = null;
+  var markersLayer = null;
+
+  // ---------------- category filters (fixes internship/job mixing) ----------------
+
+  var INTERNSHIP_RE = /\b(intern|internship|apprentice(ship)?|trainee|campus\s*hire|graduate\s*program|new\s*grad|fresher|entry[\s-]?level)\b/i;
+  var SENIORITY_RE = /\b(senior|sr\.?|staff|principal|lead|director|head\s+of|vp\b|vice\s+president|architect|manager|iii|iv)\b/i;
+
+  function isInternshipTitle(title) {
+    return INTERNSHIP_RE.test(title || "");
+  }
+  function looksSenior(title) {
+    return SENIORITY_RE.test(title || "");
+  }
+
+  function applyCategoryFilter(jobs, mode) {
+    if (mode === "student") {
+      return jobs.filter(function (j) { return isInternshipTitle(j.title) && !looksSenior(j.title); });
+    }
+    // professional mode: exclude anything explicitly framed as an internship/trainee
+    return jobs.filter(function (j) { return !isInternshipTitle(j.title); });
+  }
 
   // ---------------- fetching ----------------
 
@@ -378,88 +515,99 @@
     return (el.textContent || el.innerText || "").replace(/\s+/g, " ").trim();
   }
 
+  function withTimeout(promise, ms) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, ms);
+    return { signal: controller.signal, promise: promise(controller.signal).finally(function () { clearTimeout(timer); }) };
+  }
+
+  function safeFetchJson(url, ms) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, ms || 9000);
+    return fetch(url, { signal: controller.signal })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .catch(function () { return null; })
+      .finally(function () { clearTimeout(timer); });
+  }
+
   function fetchGreenhouse(source) {
     var url = "https://boards-api.greenhouse.io/v1/boards/" + source.token + "/jobs?content=true";
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error("gh " + r.status); return r.json(); })
-      .then(function (data) {
-        return (data.jobs || []).map(function (job) {
-          return {
-            id: "gh_" + source.token + "_" + job.id,
-            title: job.title || "",
-            company: source.name,
-            location: (job.location && job.location.name) || "",
-            description: stripHtml(job.content || ""),
-            url: job.absolute_url || "",
-            source: source.name,
-            ats: "Greenhouse"
-          };
-        });
-      })
-      .catch(function () { return []; });
+    return safeFetchJson(url).then(function (data) {
+      if (!data) return [];
+      return (data.jobs || []).map(function (job) {
+        return {
+          id: "gh_" + source.token + "_" + job.id,
+          title: job.title || "",
+          company: source.name,
+          location: (job.location && job.location.name) || "",
+          description: stripHtml(job.content || ""),
+          url: job.absolute_url || "",
+          source: source.name,
+          ats: "Greenhouse"
+        };
+      });
+    });
   }
 
   function fetchLever(source) {
     var url = "https://api.lever.co/v0/postings/" + source.token + "?mode=json";
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error("lever " + r.status); return r.json(); })
-      .then(function (data) {
-        return (data || []).map(function (job) {
-          var loc = (job.categories && (job.categories.location || job.categories.allLocations)) || "";
-          if (Array.isArray(loc)) loc = loc.join(", ");
-          return {
-            id: "lever_" + source.token + "_" + job.id,
-            title: job.text || "",
-            company: source.name,
-            location: loc || "",
-            description: stripHtml(job.descriptionPlain || job.description || ""),
-            url: job.hostedUrl || job.applyUrl || "",
-            source: source.name,
-            ats: "Lever"
-          };
-        });
-      })
-      .catch(function () { return []; });
+    return safeFetchJson(url).then(function (data) {
+      if (!data) return [];
+      return (data || []).map(function (job) {
+        var loc = (job.categories && (job.categories.location || job.categories.allLocations)) || "";
+        if (Array.isArray(loc)) loc = loc.join(", ");
+        return {
+          id: "lever_" + source.token + "_" + job.id,
+          title: job.text || "",
+          company: source.name,
+          location: loc || "",
+          description: stripHtml(job.descriptionPlain || job.description || ""),
+          url: job.hostedUrl || job.applyUrl || "",
+          source: source.name,
+          ats: "Lever"
+        };
+      });
+    });
   }
 
   function fetchAshby(source) {
     var url = "https://api.ashbyhq.com/posting-api/job-board/" + source.token;
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error("ashby " + r.status); return r.json(); })
-      .then(function (data) {
-        return (data.jobs || []).map(function (job) {
-          return {
-            id: "ashby_" + source.token + "_" + job.id,
-            title: job.title || "",
-            company: source.name,
-            location: job.location || (job.address && job.address.postalAddress && job.address.postalAddress.addressLocality) || "",
-            description: stripHtml(job.descriptionPlain || job.descriptionHtml || ""),
-            url: job.jobUrl || job.applyUrl || "",
-            source: source.name,
-            ats: "Ashby"
-          };
-        });
-      })
-      .catch(function () { return []; });
+    return safeFetchJson(url).then(function (data) {
+      if (!data) return [];
+      return (data.jobs || []).map(function (job) {
+        return {
+          id: "ashby_" + source.token + "_" + job.id,
+          title: job.title || "",
+          company: source.name,
+          location: job.location || (job.address && job.address.postalAddress && job.address.postalAddress.addressLocality) || "",
+          description: stripHtml(job.descriptionPlain || job.descriptionHtml || ""),
+          url: job.jobUrl || job.applyUrl || "",
+          source: source.name,
+          ats: "Ashby"
+        };
+      });
+    });
   }
 
   function fetchAdzuna(appId, appKey) {
     if (!appId || !appKey) return Promise.resolve([]);
     var url = "https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=" + encodeURIComponent(appId) +
       "&app_key=" + encodeURIComponent(appKey) + "&results_per_page=40&content-type=application/json";
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error("adzuna " + r.status); return r.json(); })
-      .then(function (data) {
-        return (data.results || []).map(function (job) {
-          return {
-            id: "adzuna_" + job.id,
-            title: job.title || "",
-            company: (job.company && job.company.display_name) || "",
-            location: (job.location && job.location.display_name) || "",
-            description: stripHtml(job.description || ""),
-            url: job.redirect_url || "",
-            source: (job.company && job.company.display_name) || "Adzuna",
-            ats: "Adzuna"
-          };
-        });
-      })
-      .catch(function () { return []; });
+    return safeFetchJson(url).then(function (data) {
+      if (!data) return [];
+      return (data.results || []).map(function (job) {
+        return {
+          id: "adzuna_" + job.id,
+          title: job.title || "",
+          company: (job.company && job.company.display_name) || "",
+          location: (job.location && job.location.display_name) || "",
+          description: stripHtml(job.description || ""),
+          url: job.redirect_url || "",
+          source: (job.company && job.company.display_name) || "Adzuna",
+          ats: "Adzuna"
+        };
+      });
+    });
   }
 
   function fetchRemoteOk() {
@@ -479,10 +627,10 @@
         };
       });
     }
-    return fetch(direct).then(function (r) { if (!r.ok) throw new Error("direct"); return r.json(); })
-      .catch(function () { return fetch(fallback).then(function (r) { if (!r.ok) throw new Error("fallback"); return r.json(); }); })
-      .then(normalize)
-      .catch(function () { return []; });
+    return safeFetchJson(direct).then(function (data) {
+      if (data) return normalize(data);
+      return safeFetchJson(fallback).then(function (d2) { return normalize(d2); });
+    });
   }
 
   function isIndiaJob(job) {
@@ -535,6 +683,7 @@
   }
 
   function rankJobs(description, jobs, topN, minScore) {
+    if (jobs.length === 0) return [];
     var docs = [tokenize(description)].concat(jobs.map(function (j) { return tokenize(jobToText(j)); }));
     var df = {};
     docs.forEach(function (doc) {
@@ -560,14 +709,13 @@
       var dot = 0;
       Object.keys(qv).forEach(function (t) { if (t !== "__norm" && jv[t]) dot += qv[t] * jv[t]; });
       var sim = dot / (qv.__norm * jv.__norm);
-      var out = Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
-      return out;
+      return Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
     });
     return scored.filter(function (j) { return j.matchScore >= minScore; })
       .sort(function (a, b) { return b.matchScore - a.matchScore; }).slice(0, topN);
   }
 
-  // ---------------- rendering ----------------
+  // ---------------- rendering: results list ----------------
 
   function scoreCircle(score) {
     var r = 19, c = 2 * Math.PI * r;
@@ -604,8 +752,13 @@
     var headingEl = document.getElementById("results-heading");
 
     if (jobs.length === 0) {
-      resultsEl.innerHTML = '<div class="empty">No matches yet. Try a broader description, a wider city, or lower the minimum match.</div>';
+      var modeMsg = currentMode === "student"
+        ? "No internships matched right now. MNC internship postings open in cycles (often Dec–Feb and May–Jul) — try a broader description, a wider city, or check back soon."
+        : "No matches yet. Try a broader description, a wider city, or lower the minimum match.";
+      resultsEl.innerHTML = '<div class="empty">' + modeMsg + '</div>';
       toolbarEl.hidden = true;
+      document.getElementById("map-wrap").hidden = true;
+      document.getElementById("map-toggle-btn").setAttribute("aria-pressed", "false");
       return;
     }
 
@@ -614,7 +767,7 @@
 
     resultsEl.innerHTML = jobs.map(function (job) {
       var snippet = job.description.length > 220 ? job.description.slice(0, 220).trim() + "…" : job.description;
-      var isInternship = /\bintern(ship)?\b/i.test(job.title);
+      var isInternship = isInternshipTitle(job.title);
       return (
         '<article class="entry">' +
           '<div class="score-wrap">' + scoreCircle(job.matchScore) + '</div>' +
@@ -644,11 +797,13 @@
       if (i === 0) return;
       el.style.strokeDashoffset = el.getAttribute("data-target");
     });
+
+    if (mapInstance) renderMapMarkers(jobs);
   }
 
-  function renderAgencies() {
-    var el = document.getElementById("agency-list");
-    el.innerHTML = AGENCIES.map(function (a) {
+  function renderAgencyGroup(containerId, items) {
+    var el = document.getElementById(containerId);
+    el.innerHTML = items.map(function (a) {
       return '<div class="agency"><div class="agency-top"><h4>' + escapeHtml(a.name) + '</h4>' +
         '<a class="visit" href="' + a.url + '" target="_blank" rel="noopener">Visit site</a></div>' +
         '<p>' + escapeHtml(a.blurb) + '</p></div>';
@@ -672,6 +827,68 @@
     URL.revokeObjectURL(url);
   }
 
+  // ---------------- rendering: map ----------------
+
+  function findCityCoords(locationStr) {
+    var loc = (locationStr || "").toLowerCase();
+    var bestKey = null;
+    CITY_LABELS.forEach(function (key) {
+      if (loc.indexOf(key) !== -1) {
+        if (!bestKey || key.length > bestKey.length) bestKey = key;
+      }
+    });
+    return bestKey ? { key: bestKey, coords: CITY_COORDS[bestKey] } : null;
+  }
+
+  function ensureMap() {
+    if (mapInstance) return mapInstance;
+    mapInstance = L.map("map").setView([22.9734, 78.6569], 5);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(mapInstance);
+    markersLayer = L.layerGroup().addTo(mapInstance);
+    return mapInstance;
+  }
+
+  function renderMapMarkers(jobs) {
+    if (!mapInstance || !markersLayer) return;
+    markersLayer.clearLayers();
+
+    var groups = {};
+    jobs.forEach(function (job) {
+      var match = findCityCoords(job.location);
+      if (!match) return;
+      if (!groups[match.key]) groups[match.key] = { coords: match.coords, jobs: [] };
+      groups[match.key].jobs.push(job);
+    });
+
+    var bounds = [];
+    Object.keys(groups).forEach(function (key) {
+      var g = groups[key];
+      bounds.push(g.coords);
+      var listHtml = g.jobs.slice(0, 8).map(function (j) {
+        return '<a class="map-popup-job" href="' + j.url + '" target="_blank" rel="noopener">' +
+          escapeHtml(j.title) + ' — ' + escapeHtml(j.company) + '</a>';
+      }).join("");
+      if (g.jobs.length > 8) listHtml += '<div style="margin-top:0.3rem;color:#55503F;">+' + (g.jobs.length - 8) + ' more</div>';
+      var marker = L.marker(g.coords).bindPopup(
+        '<b>' + escapeHtml(key.replace(/\b\w/g, function (c) { return c.toUpperCase(); })) + '</b> — ' + g.jobs.length + (g.jobs.length === 1 ? ' opening' : ' openings') +
+        '<div style="margin-top:0.4rem;">' + listHtml + '</div>'
+      );
+      markersLayer.addLayer(marker);
+    });
+
+    if (bounds.length) mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 11 });
+  }
+
+  function populateCityDatalist() {
+    var dl = document.getElementById("city-options");
+    dl.innerHTML = CITY_LABELS.map(function (c) {
+      return '<option value="' + c.replace(/\b\w/g, function (ch) { return ch.toUpperCase(); }) + '">';
+    }).join("");
+  }
+
   // ---------------- wiring ----------------
 
   document.querySelectorAll(".mode-toggle button").forEach(function (btn) {
@@ -680,10 +897,12 @@
       document.querySelectorAll(".mode-toggle button").forEach(function (b) {
         b.setAttribute("aria-pressed", b === btn ? "true" : "false");
       });
+      document.getElementById("mode-note").textContent = currentMode === "student"
+        ? "Only internship, trainee, and campus-hire postings will be shown."
+        : "Internship and trainee postings are excluded from these results.";
     });
   });
 
-  // restore saved Adzuna credentials
   try {
     var savedId = localStorage.getItem("jf_adzuna_id");
     var savedKey = localStorage.getItem("jf_adzuna_key");
@@ -691,7 +910,9 @@
     if (savedKey) document.getElementById("adzuna-key").value = savedKey;
   } catch (e) { /* localStorage unavailable, ignore */ }
 
-  renderAgencies();
+  renderAgencyGroup("bigmnc-list", BIG_MNCS);
+  renderAgencyGroup("agency-list", AGENCIES);
+  populateCityDatalist();
 
   var form = document.getElementById("search-form");
   var statusEl = document.getElementById("status");
@@ -699,6 +920,41 @@
   var toolbarEl = document.getElementById("toolbar");
   var findBtn = document.getElementById("find-btn");
   var csvBtn = document.getElementById("csv-btn");
+  var mapToggleBtn = document.getElementById("map-toggle-btn");
+  var mapWrap = document.getElementById("map-wrap");
+
+  mapToggleBtn.addEventListener("click", function () {
+    var showing = mapToggleBtn.getAttribute("aria-pressed") === "true";
+    if (showing) {
+      mapWrap.hidden = true;
+      mapToggleBtn.setAttribute("aria-pressed", "false");
+      mapToggleBtn.textContent = "Show on map";
+    } else {
+      mapWrap.hidden = false;
+      mapToggleBtn.setAttribute("aria-pressed", "true");
+      mapToggleBtn.textContent = "Hide map";
+      ensureMap();
+      setTimeout(function () {
+        mapInstance.invalidateSize();
+        renderMapMarkers(lastResults);
+      }, 50);
+    }
+  });
+
+  document.getElementById("map-search-btn").addEventListener("click", function () {
+    var q = document.getElementById("map-search-input").value.trim().toLowerCase();
+    if (!q || !mapInstance) return;
+    var match = CITY_LABELS.find(function (c) { return c === q || c.indexOf(q) !== -1; });
+    if (match) {
+      mapInstance.setView(CITY_COORDS[match], 11);
+      markersLayer.eachLayer(function (m) {
+        var ll = m.getLatLng();
+        if (Math.abs(ll.lat - CITY_COORDS[match][0]) < 0.01 && Math.abs(ll.lng - CITY_COORDS[match][1]) < 0.01) {
+          m.openPopup();
+        }
+      });
+    }
+  });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -708,7 +964,7 @@
     var college = document.getElementById("college").value.trim();
     var city = document.getElementById("city").value;
     var minScore = parseFloat(document.getElementById("min-score").value) || 0;
-    var topN = parseInt(document.getElementById("top-n").value, 10) || 20;
+    var topN = parseInt(document.getElementById("top-n").value, 10) || 25;
     var includeGlobalRemote = document.getElementById("include-remote-global").checked;
     var adzunaId = document.getElementById("adzuna-id").value.trim();
     var adzunaKey = document.getElementById("adzuna-key").value.trim();
@@ -734,11 +990,15 @@
       .then(function (jobs) {
         if (city && city !== "remote") {
           var cityFiltered = jobs.filter(function (j) { return (j.location || "").toLowerCase().indexOf(city) !== -1; });
-          if (cityFiltered.length >= 3) jobs = cityFiltered; // only narrow if it doesn't wipe out results
+          if (cityFiltered.length >= 3) jobs = cityFiltered;
         } else if (city === "remote") {
           jobs = jobs.filter(function (j) { return /remote/i.test(j.location || ""); });
         }
-        statusEl.textContent = "Read " + jobs.length + " India-relevant listings. Matching against your description…";
+
+        // Hard category filter FIRST — this is what keeps internship search from showing experienced roles.
+        jobs = applyCategoryFilter(jobs, currentMode);
+
+        statusEl.textContent = "Read " + jobs.length + " matching-category listings. Ranking against your description…";
         var ranked = rankJobs(augmentedQuery, jobs, topN, minScore);
         statusEl.textContent = "";
         renderResults(ranked, college);
