@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Finder — match remote jobs to what you want</title>
+<meta name="description" content="Describe the job you want. Job Finder pulls live remote listings and ranks them against your description, right in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4EEDF;
+    --paper-alt: #ECE4CF;
+    --ink: #211E18;
+    --ink-soft: #55503F;
+    --rule: #C9BFA0;
+    --margin: #A8402A;
+    --stamp: #A8402A;
+    --sage: #3D5A45;
+    --max-w: 620px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+    background-image:
+      linear-gradient(var(--paper-alt) 1px, transparent 1px);
+    background-size: 100% 2.05rem;
+    background-position: 0 9.4rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .page {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+    position: relative;
+  }
+
+  .page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 2.1rem;
+    width: 1.5px;
+    background: var(--margin);
+    opacity: 0.55;
+  }
+
+  @media (max-width: 480px) {
+    .page::before { left: 1.1rem; }
+    .page { padding-left: 1.25rem; padding-right: 1.25rem; }
+  }
+
+  header.masthead {
+    padding: 3.2rem 0 1.6rem 2.4rem;
+  }
+
+  @media (max-width: 480px) {
+    header.masthead { padding-left: 1.4rem; }
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(2.1rem, 7vw, 2.9rem);
+    letter-spacing: -0.01em;
+    margin: 0 0 0.35rem;
+    line-height: 1.05;
+  }
+
+  .tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  section {
+    padding-left: 2.4rem;
+  }
+
+  @media (max-width: 480px) {
+    section { padding-left: 1.4rem; }
+  }
+
+  .field-group {
+    margin: 1.8rem 0 0;
+  }
+
+  label {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--rule);
+    padding: 0.5rem 0.1rem;
+    resize: vertical;
+    outline: none;
+  }
+
+  textarea { min-height: 4.6rem; }
+
+  textarea:focus, input[type="text"]:focus {
+    border-bottom-color: var(--margin);
+  }
+
+  .row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .row .field-group { flex: 1 1 200px; margin-top: 1.6rem; }
+
+  button.find {
+    margin-top: 2rem;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 0.75rem 1.6rem;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+
+  button.find:hover { background: var(--margin); }
+  button.find:disabled { background: var(--ink-soft); cursor: progress; }
+  button.find:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--margin); outline-offset: 2px; }
+
+  .status {
+    margin-top: 1.6rem;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    min-height: 1.2rem;
+  }
+
+  .results {
+    margin-top: 1rem;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 4.6rem 1fr;
+    gap: 1.1rem;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .entry:last-child { border-bottom: 1px solid var(--rule); }
+
+  .score-wrap { display: flex; align-items: flex-start; justify-content: center; padding-top: 0.15rem; }
+
+  .score {
+    width: 4.4rem;
+    height: 4.4rem;
+    position: relative;
+  }
+
+  .score svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score circle { fill: none; stroke-width: 2.5; }
+  .score .track { stroke: var(--rule); }
+  .score .fill { stroke: var(--stamp); stroke-linecap: round; }
+
+  .score .num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--stamp);
+  }
+
+  .entry h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin: 0 0 0.2rem;
+    line-height: 1.25;
+  }
+
+  .meta {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .meta .source {
+    color: var(--sage);
+  }
+
+  .snippet {
+    font-size: 0.93rem;
+    color: var(--ink);
+    margin: 0 0 0.6rem;
+  }
+
+  .entry a.apply {
+    font-size: 0.93rem;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+  }
+
+  .entry a.apply:hover { text-decoration-color: var(--margin); }
+
+  .empty, .error {
+    padding: 2.2rem 0;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+  }
+
+  .error { color: var(--margin); }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .toolbar h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .toolbar button.csv {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    background: none;
+    border: 1px solid var(--ink-soft);
+    color: var(--ink-soft);
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+  }
+
+  .toolbar button.csv:hover { border-color: var(--margin); color: var(--margin); }
+
+  footer {
+    padding: 3rem 0 0 2.4rem;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) { footer { padding-left: 1.4rem; } }
+
+  footer a { color: var(--ink-soft); }
+
+  .source-note {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="masthead">
+    <h1>Job Finder</h1>
+    <p class="tagline">Tell it what you want. It reads the listings for you.</p>
+  </header>
+
+  <section>
+    <form id="search-form">
+      <div class="field-group">
+        <label for="description">What are you looking for?</label>
+        <textarea id="description" required placeholder="e.g. Python backend developer, 3 years with Django and AWS, want a remote mid-level role"></textarea>
+      </div>
+      <div class="row">
+        <div class="field-group">
+          <label for="min-score">Minimum match</label>
+          <input type="text" id="min-score" value="8" inputmode="numeric" aria-describedby="min-score-hint">
+        </div>
+        <div class="field-group">
+          <label for="top-n">How many results</label>
+          <input type="text" id="top-n" value="15" inputmode="numeric">
+        </div>
+      </div>
+      <button type="submit" class="find" id="find-btn">Find matches</button>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <div class="toolbar" id="toolbar" hidden>
+      <h3 id="results-heading"></h3>
+      <button class="csv" id="csv-btn">Download CSV</button>
+    </div>
+
+    <div class="results" id="results"></div>
+  </section>
+
+  <footer>
+    <p>Listings come live from <a href="https://remoteok.com" target="_blank" rel="noopener">RemoteOK</a>'s public feed. Matching runs entirely in your browser — your description is never sent anywhere.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var REMOTEOK_URL = "https://remoteok.com/api";
+  var CORS_FALLBACK = "https://api.allorigins.win/raw?url=" + encodeURIComponent(REMOTEOK_URL);
+
+  var form = document.getElementById("search-form");
+  var statusEl = document.getElementById("status");
+  var resultsEl = document.getElementById("results");
+  var toolbarEl = document.getElementById("toolbar");
+  var headingEl = document.getElementById("results-heading");
+  var findBtn = document.getElementById("find-btn");
+  var csvBtn = document.getElementById("csv-btn");
+
+  var lastResults = [];
+
+  // ---------- fetching ----------
+
+  function stripHtml(text) {
+    if (!text) return "";
+    var el = document.createElement("div");
+    el.innerHTML = text;
+    return (el.textContent || el.innerText || "").replace(/\s+/g, " ").trim();
+  }
+
+  function normalizeJobs(raw) {
+    return (raw || [])
+      .filter(function (item) { return item && item.id && item.position; })
+      .map(function (item) {
+        return {
+          id: "remoteok_" + item.id,
+          title: (item.position || "").trim(),
+          company: (item.company || "").trim(),
+          location: item.location || "Remote",
+          description: stripHtml(item.description || ""),
+          tags: item.tags || [],
+          url: item.url || ("https://remoteok.com/remote-jobs/" + item.id),
+          source: "RemoteOK"
+        };
+      });
+  }
+
+  function fetchJobs() {
+    return fetch(REMOTEOK_URL, { headers: { "Accept": "application/json" } })
+      .then(function (res) {
+        if (!res.ok) throw new Error("direct fetch failed: " + res.status);
+        return res.json();
+      })
+      .catch(function () {
+        // Browsers often can't reach RemoteOK's API directly due to CORS.
+        // Fall back to a public read-only CORS relay.
+        return fetch(CORS_FALLBACK).then(function (res) {
+          if (!res.ok) throw new Error("fallback fetch failed: " + res.status);
+          return res.json();
+        });
+      })
+      .then(normalizeJobs);
+  }
+
+  // ---------- matching (vanilla TF-IDF + cosine similarity) ----------
+
+  var STOPWORDS = ("a about above after again against all am an and any are aren't as at be because been "
+    + "before being below between both but by can't cannot could couldn't did didn't do does doesn't doing "
+    + "don't down during each few for from further had hadn't has hasn't have haven't having he he'd he'll "
+    + "he's her here here's hers herself him himself his how how's i i'd i'll i'm i've if in into is isn't it "
+    + "it's its itself let's me more most mustn't my myself no nor not of off on once only or other ought our "
+    + "ours ourselves out over own same shan't she she'd she'll she's should shouldn't so some such than that "
+    + "that's the their theirs them themselves then there there's these they they'd they'll they're they've "
+    + "this those through to too under until up very was wasn't we we'd we'll we're we've were weren't what "
+    + "what's when when's where where's which while who who's whom why why's with won't would wouldn't you "
+    + "you'd you'll you're you've your yours yourself yourselves").split(" ");
+  var STOPSET = {};
+  STOPWORDS.forEach(function (w) { STOPSET[w] = true; });
+
+  function tokenize(text) {
+    return (text || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9+#. ]/g, " ")
+      .split(/\s+/)
+      .filter(function (t) { return t.length > 1 && !STOPSET[t]; });
+  }
+
+  function jobToText(job) {
+    return [job.title, job.company, job.location, (job.tags || []).join(" "), job.description].join(" ");
+  }
+
+  function rankJobs(description, jobs, topN, minScore) {
+    var docs = [tokenize(description)].concat(jobs.map(function (j) { return tokenize(jobToText(j)); }));
+
+    // document frequency
+    var df = {};
+    docs.forEach(function (doc) {
+      var seen = {};
+      doc.forEach(function (term) {
+        if (!seen[term]) { df[term] = (df[term] || 0) + 1; seen[term] = true; }
+      });
+    });
+
+    var N = docs.length;
+    function vectorize(doc) {
+      var tf = {};
+      doc.forEach(function (term) { tf[term] = (tf[term] || 0) + 1; });
+      var vec = {};
+      var norm = 0;
+      Object.keys(tf).forEach(function (term) {
+        var idf = Math.log((N + 1) / ((df[term] || 1) + 1)) + 1;
+        var weight = (tf[term] / doc.length) * idf;
+        vec[term] = weight;
+        norm += weight * weight;
+      });
+      vec.__norm = Math.sqrt(norm) || 1;
+      return vec;
+    }
+
+    var queryVec = vectorize(docs[0]);
+    var scored = jobs.map(function (job, i) {
+      var jobVec = vectorize(docs[i + 1]);
+      var dot = 0;
+      Object.keys(queryVec).forEach(function (term) {
+        if (term === "__norm") return;
+        if (jobVec[term]) dot += queryVec[term] * jobVec[term];
+      });
+      var sim = dot / (queryVec.__norm * jobVec.__norm);
+      return Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
+    });
+
+    return scored
+      .filter(function (j) { return j.matchScore >= minScore; })
+      .sort(function (a, b) { return b.matchScore - a.matchScore; })
+      .slice(0, topN);
+  }
+
+  // ---------- rendering ----------
+
+  function scoreCircle(score) {
+    var r = 19, c = 2 * Math.PI * r;
+    var pct = Math.max(0, Math.min(100, score));
+    var offset = c - (pct / 100) * c;
+    return (
+      '<div class="score">' +
+        '<svg viewBox="0 0 44 44">' +
+          '<circle class="track" cx="22" cy="22" r="' + r + '"></circle>' +
+          '<circle class="fill" cx="22" cy="22" r="' + r + '" stroke-dasharray="' + c + '" ' +
+            'style="stroke-dashoffset:' + c + '" data-target="' + offset + '"></circle>' +
+        '</svg>' +
+        '<div class="num">' + Math.round(pct) + '%</div>' +
+      '</div>'
+    );
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+  }
+
+  function renderResults(jobs) {
+    lastResults = jobs;
+
+    if (jobs.length === 0) {
+      resultsEl.innerHTML = '<div class="empty">No matches yet. Try a broader description, or lower the minimum match.</div>';
+      toolbarEl.hidden = true;
+      return;
+    }
+
+    headingEl.textContent = jobs.length + (jobs.length === 1 ? " match" : " matches");
+    toolbarEl.hidden = false;
+
+    resultsEl.innerHTML = jobs.map(function (job) {
+      var snippet = job.description.length > 220 ? job.description.slice(0, 220).trim() + "…" : job.description;
+      return (
+        '<article class="entry">' +
+          '<div class="score-wrap">' + scoreCircle(job.matchScore) + '</div>' +
+          '<div>' +
+            '<h2>' + escapeHtml(job.title) + '</h2>' +
+            '<p class="meta">' + escapeHtml(job.company || "Unknown company") + ' — ' + escapeHtml(job.location) +
+              ' — <span class="source">' + escapeHtml(job.source) + '</span></p>' +
+            '<p class="snippet">' + escapeHtml(snippet) + '</p>' +
+            '<a class="apply" href="' + job.url + '" target="_blank" rel="noopener">View listing</a>' +
+          '</div>' +
+        '</article>'
+      );
+    }).join("");
+
+    // animate only the first (best) match's ring, one deliberate moment
+    var firstFill = resultsEl.querySelector(".entry .fill");
+    if (firstFill) {
+      requestAnimationFrame(function () {
+        firstFill.style.transition = "stroke-dashoffset 900ms ease-out";
+        firstFill.style.strokeDashoffset = firstFill.getAttribute("data-target");
+      });
+    }
+    // set the rest instantly
+    resultsEl.querySelectorAll(".entry .fill").forEach(function (el, i) {
+      if (i === 0) return;
+      el.style.strokeDashoffset = el.getAttribute("data-target");
+    });
+  }
+
+  function downloadCsv(jobs) {
+    var rows = [["match_score", "title", "company", "location", "source", "url"]];
+    jobs.forEach(function (j) {
+      rows.push([j.matchScore, j.title, j.company, j.location, j.source, j.url]);
+    });
+    var csv = rows.map(function (row) {
+      return row.map(function (cell) {
+        var s = String(cell == null ? "" : cell);
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      }).join(",");
+    }).join("\n");
+
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "job-matches.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- wiring ----------
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var description = document.getElementById("description").value.trim();
+    if (!description) return;
+
+    var minScore = parseFloat(document.getElementById("min-score").value) || 0;
+    var topN = parseInt(document.getElementById("top-n").value, 10) || 15;
+
+    findBtn.disabled = true;
+    findBtn.textContent = "Reading listings…";
+    statusEl.textContent = "Fetching live listings from RemoteOK…";
+    toolbarEl.hidden = true;
+    resultsEl.innerHTML = "";
+
+    fetchJobs()
+      .then(function (jobs) {
+        statusEl.textContent = "Read " + jobs.length + " listings. Matching against your description…";
+        var ranked = rankJobs(description, jobs, topN, minScore);
+        statusEl.textContent = "";
+        renderResults(ranked);
+      })
+      .catch(function (err) {
+        console.error(err);
+        statusEl.textContent = "";
+        resultsEl.innerHTML = '<div class="error">Couldn\'t reach the job listing feed. Check your connection and try again — if it keeps failing, RemoteOK or the fallback relay may be temporarily down.</div>';
+        toolbarEl.hidden = true;
+      })
+      .finally(function () {
+        findBtn.disabled = false;
+        findBtn.textContent = "Find matches";
+      });
+  });
+
+  csvBtn.addEventListener("click", function () {
+    if (lastResults.length) downloadCsv(lastResults);
+  });
+})();
+</script>
+
+</body>
+</html>
