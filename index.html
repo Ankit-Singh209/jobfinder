@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Finder — match remote jobs to what you want</title>
-<meta name="description" content="Describe the job you want. Job Finder pulls live remote listings and ranks them against your description, right in your browser.">
+<title>India Job & Internship Finder — MNC listings, matched to you</title>
+<meta name="description" content="Find internships and jobs at MNCs hiring in India, matched to your description. Pulls live listings straight from company career systems, plus a directory of genuine staffing agencies.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
@@ -18,12 +18,11 @@
     --margin: #A8402A;
     --stamp: #A8402A;
     --sage: #3D5A45;
-    --max-w: 620px;
+    --saffron: #C77A22;
+    --max-w: 680px;
   }
 
   * { box-sizing: border-box; }
-
-  html { -webkit-text-size-adjust: 100%; }
 
   body {
     margin: 0;
@@ -31,29 +30,21 @@
     color: var(--ink);
     font-family: 'IBM Plex Sans', sans-serif;
     line-height: 1.5;
-    background-image:
-      linear-gradient(var(--paper-alt) 1px, transparent 1px);
+    background-image: linear-gradient(var(--paper-alt) 1px, transparent 1px);
     background-size: 100% 2.05rem;
-    background-position: 0 9.4rem;
+    background-position: 0 11.5rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
 
-  .page {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: 0 1.5rem 5rem;
-    position: relative;
-  }
+  .page { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem 5rem; position: relative; }
 
   .page::before {
     content: "";
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 2.1rem;
+    top: 0; bottom: 0; left: 2.1rem;
     width: 1.5px;
     background: var(--margin);
     opacity: 0.55;
@@ -64,52 +55,50 @@
     .page { padding-left: 1.25rem; padding-right: 1.25rem; }
   }
 
-  header.masthead {
-    padding: 3.2rem 0 1.6rem 2.4rem;
-  }
+  header.masthead { padding: 3rem 0 1.4rem 2.4rem; }
+  @media (max-width: 480px) { header.masthead { padding-left: 1.4rem; } }
 
-  @media (max-width: 480px) {
-    header.masthead { padding-left: 1.4rem; }
-  }
+  .eyebrow-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .flag-dash { display: inline-flex; width: 1.6rem; height: 0.35rem; overflow: hidden; border: 1px solid var(--rule); }
+  .flag-dash span { flex: 1; }
+  .flag-dash span:nth-child(1) { background: var(--saffron); }
+  .flag-dash span:nth-child(2) { background: var(--paper); }
+  .flag-dash span:nth-child(3) { background: var(--sage); }
+  .eyebrow-text { font-size: 0.85rem; color: var(--ink-soft); }
 
   h1 {
     font-family: 'Fraunces', serif;
     font-weight: 700;
-    font-size: clamp(2.1rem, 7vw, 2.9rem);
+    font-size: clamp(2rem, 6.6vw, 2.7rem);
     letter-spacing: -0.01em;
     margin: 0 0 0.35rem;
-    line-height: 1.05;
+    line-height: 1.08;
   }
 
-  .tagline {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
+  .tagline { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; color: var(--ink-soft); font-size: 1.02rem; margin: 0; max-width: 34ch; }
+
+  section { padding-left: 2.4rem; }
+  @media (max-width: 480px) { section { padding-left: 1.4rem; } }
+
+  .mode-toggle { display: flex; gap: 0; margin-top: 1.8rem; border: 1.5px solid var(--ink); width: fit-content; }
+  .mode-toggle button {
+    font-family: 'IBM Plex Sans', sans-serif;
     font-weight: 500;
-    color: var(--ink-soft);
-    font-size: 1.05rem;
-    margin: 0;
+    font-size: 0.92rem;
+    padding: 0.55rem 1.1rem;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    cursor: pointer;
   }
+  .mode-toggle button + button { border-left: 1.5px solid var(--ink); }
+  .mode-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 
-  section {
-    padding-left: 2.4rem;
-  }
+  .field-group { margin: 1.7rem 0 0; }
+  label { display: block; font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 0.4rem; }
+  .label-hint { font-size: 0.8rem; color: var(--ink-soft); opacity: 0.8; }
 
-  @media (max-width: 480px) {
-    section { padding-left: 1.4rem; }
-  }
-
-  .field-group {
-    margin: 1.8rem 0 0;
-  }
-
-  label {
-    display: block;
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-    margin-bottom: 0.4rem;
-  }
-
-  textarea, input[type="text"] {
+  textarea, input[type="text"], select {
     width: 100%;
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 1rem;
@@ -121,20 +110,17 @@
     resize: vertical;
     outline: none;
   }
-
   textarea { min-height: 4.6rem; }
+  textarea:focus, input[type="text"]:focus, select:focus { border-bottom-color: var(--margin); }
 
-  textarea:focus, input[type="text"]:focus {
-    border-bottom-color: var(--margin);
-  }
-
-  .row {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
+  .row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
   .row .field-group { flex: 1 1 200px; margin-top: 1.6rem; }
+
+  details.advanced { margin-top: 1.8rem; border-top: 1px solid var(--rule); padding-top: 0.9rem; }
+  details.advanced summary { cursor: pointer; font-size: 0.92rem; color: var(--ink-soft); }
+  details.advanced summary:hover { color: var(--margin); }
+  details.advanced .row { margin-top: 0.3rem; }
+  .note { font-size: 0.85rem; color: var(--ink-soft); margin: 0.6rem 0 0; }
 
   button.find {
     margin-top: 2rem;
@@ -146,171 +132,149 @@
     border: none;
     padding: 0.75rem 1.6rem;
     cursor: pointer;
-    letter-spacing: 0.01em;
   }
-
   button.find:hover { background: var(--margin); }
   button.find:disabled { background: var(--ink-soft); cursor: progress; }
-  button.find:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--margin); outline-offset: 2px; }
+  button.find:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--margin); outline-offset: 2px; }
 
-  .status {
-    margin-top: 1.6rem;
-    color: var(--ink-soft);
-    font-size: 0.95rem;
-    min-height: 1.2rem;
-  }
+  .status { margin-top: 1.4rem; color: var(--ink-soft); font-size: 0.95rem; min-height: 1.2rem; }
 
-  .results {
-    margin-top: 1rem;
-  }
+  .results { margin-top: 1rem; }
 
-  .entry {
-    display: grid;
-    grid-template-columns: 4.6rem 1fr;
-    gap: 1.1rem;
-    padding: 1.6rem 0;
-    border-top: 1px solid var(--rule);
-  }
-
+  .entry { display: grid; grid-template-columns: 4.6rem 1fr; gap: 1.1rem; padding: 1.6rem 0; border-top: 1px solid var(--rule); }
   .entry:last-child { border-bottom: 1px solid var(--rule); }
 
   .score-wrap { display: flex; align-items: flex-start; justify-content: center; padding-top: 0.15rem; }
-
-  .score {
-    width: 4.4rem;
-    height: 4.4rem;
-    position: relative;
-  }
-
+  .score { width: 4.4rem; height: 4.4rem; position: relative; }
   .score svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .score circle { fill: none; stroke-width: 2.5; }
   .score .track { stroke: var(--rule); }
   .score .fill { stroke: var(--stamp); stroke-linecap: round; }
+  .score .num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.05rem; color: var(--stamp); }
 
-  .score .num {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--stamp);
-  }
+  .entry h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.13rem; margin: 0 0 0.2rem; line-height: 1.25; }
+  .meta { color: var(--ink-soft); font-size: 0.89rem; margin: 0 0 0.5rem; }
+  .meta .source { color: var(--sage); }
+  .badge { display: inline-block; font-size: 0.72rem; border: 1px solid var(--rule); padding: 0.08rem 0.4rem; margin-left: 0.4rem; color: var(--ink-soft); vertical-align: middle; }
 
-  .entry h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 1.15rem;
-    margin: 0 0 0.2rem;
-    line-height: 1.25;
-  }
+  .snippet { font-size: 0.92rem; color: var(--ink); margin: 0 0 0.7rem; }
 
-  .meta {
-    color: var(--ink-soft);
-    font-size: 0.9rem;
-    margin: 0 0 0.5rem;
-  }
+  .link-row { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+  .entry a.action { font-size: 0.9rem; color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+  .entry a.action:hover { text-decoration-color: var(--margin); }
 
-  .meta .source {
-    color: var(--sage);
-  }
-
-  .snippet {
-    font-size: 0.93rem;
-    color: var(--ink);
-    margin: 0 0 0.6rem;
-  }
-
-  .entry a.apply {
-    font-size: 0.93rem;
-    color: var(--ink);
-    text-decoration: underline;
-    text-decoration-color: var(--rule);
-    text-underline-offset: 3px;
-  }
-
-  .entry a.apply:hover { text-decoration-color: var(--margin); }
-
-  .empty, .error {
-    padding: 2.2rem 0;
-    border-top: 1px solid var(--rule);
-    color: var(--ink-soft);
-    font-size: 0.98rem;
-  }
-
+  .empty, .error { padding: 2.2rem 0; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 0.98rem; }
   .error { color: var(--margin); }
 
-  .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-  }
-
-  .toolbar h3 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin: 0;
-  }
-
-  .toolbar button.csv {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    background: none;
-    border: 1px solid var(--ink-soft);
-    color: var(--ink-soft);
-    padding: 0.35rem 0.7rem;
-    cursor: pointer;
-  }
-
+  .toolbar { display: flex; justify-content: space-between; align-items: baseline; margin-top: 2rem; flex-wrap: wrap; gap: 0.6rem; }
+  .toolbar h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.05rem; margin: 0; }
+  .toolbar button.csv { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; background: none; border: 1px solid var(--ink-soft); color: var(--ink-soft); padding: 0.35rem 0.7rem; cursor: pointer; }
   .toolbar button.csv:hover { border-color: var(--margin); color: var(--margin); }
 
-  footer {
-    padding: 3rem 0 0 2.4rem;
-    color: var(--ink-soft);
-    font-size: 0.85rem;
+  .section-heading {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 3.4rem 0 0.3rem;
   }
+  .section-sub { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 1.4rem; max-width: 48ch; }
 
+  .agency-list { border-top: 1px solid var(--rule); }
+  .agency { display: grid; grid-template-columns: 1fr; padding: 1.1rem 0; border-bottom: 1px solid var(--rule); }
+  .agency-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; }
+  .agency h4 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.02rem; margin: 0; }
+  .agency a.visit { font-size: 0.85rem; color: var(--sage); text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 2px; white-space: nowrap; }
+  .agency p { font-size: 0.9rem; color: var(--ink-soft); margin: 0.3rem 0 0; }
+
+  .safety {
+    margin-top: 3.4rem;
+    padding: 1.2rem 1.3rem;
+    border: 1.5px solid var(--margin);
+    background: rgba(168, 64, 42, 0.06);
+  }
+  .safety h4 { font-family: 'Fraunces', serif; margin: 0 0 0.5rem; font-size: 1rem; color: var(--margin); }
+  .safety ul { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; color: var(--ink); }
+  .safety li { margin-bottom: 0.3rem; }
+
+  footer { padding: 3rem 0 0 2.4rem; color: var(--ink-soft); font-size: 0.85rem; }
   @media (max-width: 480px) { footer { padding-left: 1.4rem; } }
-
   footer a { color: var(--ink-soft); }
-
-  .source-note {
-    margin-top: 0.9rem;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-  }
+  footer p { max-width: 52ch; }
 </style>
 </head>
 <body>
 
 <div class="page">
   <header class="masthead">
-    <h1>Job Finder</h1>
-    <p class="tagline">Tell it what you want. It reads the listings for you.</p>
+    <div class="eyebrow-row">
+      <span class="flag-dash" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="eyebrow-text">Built for the Indian job market</span>
+    </div>
+    <h1>Job &amp; Internship Finder</h1>
+    <p class="tagline">Describe what you want. It reads live openings at MNCs hiring in India and ranks them for you.</p>
   </header>
 
   <section>
     <form id="search-form">
+      <div class="mode-toggle" role="group" aria-label="Looking for">
+        <button type="button" data-mode="student" aria-pressed="true">Student / fresher — internship</button>
+        <button type="button" data-mode="professional" aria-pressed="false">Professional — job</button>
+      </div>
+
       <div class="field-group">
         <label for="description">What are you looking for?</label>
-        <textarea id="description" required placeholder="e.g. Python backend developer, 3 years with Django and AWS, want a remote mid-level role"></textarea>
+        <textarea id="description" required placeholder="e.g. Final-year CS student, good with Python and React, looking for a 6-month software engineering internship"></textarea>
       </div>
+
       <div class="row">
         <div class="field-group">
-          <label for="min-score">Minimum match</label>
-          <input type="text" id="min-score" value="8" inputmode="numeric" aria-describedby="min-score-hint">
+          <label for="college">College / university <span class="label-hint">(optional)</span></label>
+          <input type="text" id="college" placeholder="e.g. VIT Vellore">
         </div>
         <div class="field-group">
-          <label for="top-n">How many results</label>
-          <input type="text" id="top-n" value="15" inputmode="numeric">
+          <label for="city">Preferred city</label>
+          <select id="city">
+            <option value="">Any city in India</option>
+            <option value="remote">Remote / work from anywhere</option>
+            <option value="bengaluru">Bengaluru</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="delhi">Delhi NCR / Gurugram / Noida</option>
+            <option value="hyderabad">Hyderabad</option>
+            <option value="pune">Pune</option>
+            <option value="chennai">Chennai</option>
+            <option value="kolkata">Kolkata</option>
+            <option value="ahmedabad">Ahmedabad</option>
+          </select>
         </div>
       </div>
+
+      <details class="advanced">
+        <summary>More options</summary>
+        <div class="row">
+          <div class="field-group">
+            <label for="min-score">Minimum match (0–100)</label>
+            <input type="text" id="min-score" value="6" inputmode="numeric">
+          </div>
+          <div class="field-group">
+            <label for="top-n">How many results</label>
+            <input type="text" id="top-n" value="20" inputmode="numeric">
+          </div>
+        </div>
+        <div class="field-group" style="display:flex; align-items:center; gap:0.5rem; margin-top:1.3rem;">
+          <input type="checkbox" id="include-remote-global" style="width:auto;">
+          <label for="include-remote-global" style="margin:0;">Also include global remote roles (not India-specific)</label>
+        </div>
+        <div class="field-group">
+          <label for="adzuna-id">Adzuna API ID <span class="label-hint">(optional — adds broader India job market coverage)</span></label>
+          <input type="text" id="adzuna-id" placeholder="Get a free key at developer.adzuna.com">
+        </div>
+        <div class="field-group">
+          <label for="adzuna-key">Adzuna API key</label>
+          <input type="text" id="adzuna-key" placeholder="Stored only in your browser">
+        </div>
+        <p class="note">Adzuna keys are saved in your browser's local storage only — never sent anywhere but Adzuna's API.</p>
+      </details>
+
       <button type="submit" class="find" id="find-btn">Find matches</button>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </form>
@@ -321,10 +285,25 @@
     </div>
 
     <div class="results" id="results"></div>
+
+    <div class="safety">
+      <h4>Before you apply</h4>
+      <ul>
+        <li>Genuine employers and agencies never ask you to pay for an interview, offer letter, or "registration."</li>
+        <li>Apply through the official link shown here, or the company's own careers page — not a forwarded PDF or WhatsApp form.</li>
+        <li>A real recruiter's email matches the company's domain (e.g. <code>@company.com</code>), not a free Gmail/Yahoo address.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-heading">Staffing &amp; recruitment agencies in India</h2>
+    <p class="section-sub">Established firms that place candidates into MNCs and large Indian companies. Verify current openings on their own sites — this list doesn't fetch live data.</p>
+    <div class="agency-list" id="agency-list"></div>
   </section>
 
   <footer>
-    <p>Listings come live from <a href="https://remoteok.com" target="_blank" rel="noopener">RemoteOK</a>'s public feed. Matching runs entirely in your browser — your description is never sent anywhere.</p>
+    <p>MNC listings are fetched live, directly from each company's own applicant tracking system (Greenhouse, Lever, or Ashby) — the same data their own careers page shows. Matching runs in your browser; your description is never sent anywhere. Optional Adzuna coverage requires your own free API key.</p>
   </footer>
 </div>
 
@@ -332,20 +311,65 @@
 (function () {
   "use strict";
 
-  var REMOTEOK_URL = "https://remoteok.com/api";
-  var CORS_FALLBACK = "https://api.allorigins.win/raw?url=" + encodeURIComponent(REMOTEOK_URL);
+  // ---------------- config ----------------
 
-  var form = document.getElementById("search-form");
-  var statusEl = document.getElementById("status");
-  var resultsEl = document.getElementById("results");
-  var toolbarEl = document.getElementById("toolbar");
-  var headingEl = document.getElementById("results-heading");
-  var findBtn = document.getElementById("find-btn");
-  var csvBtn = document.getElementById("csv-btn");
+  // Verified public ATS board tokens for companies with a confirmed India presence
+  // (engineering/GCC/regional offices) or fully remote-first hiring open to India.
+  // Add more anytime — each entry just needs { name, ats, token }.
+  var SOURCES = [
+    { name: "Cloudflare",   ats: "greenhouse", token: "cloudflare" },
+    { name: "MongoDB",      ats: "greenhouse", token: "mongodb" },
+    { name: "Okta",         ats: "greenhouse", token: "okta" },
+    { name: "Twilio",       ats: "greenhouse", token: "twilio" },
+    { name: "Intercom",     ats: "greenhouse", token: "intercom" },
+    { name: "GoDaddy",      ats: "greenhouse", token: "godaddy" },
+    { name: "Grammarly",    ats: "greenhouse", token: "grammarly" },
+    { name: "Workato",      ats: "greenhouse", token: "workato" },
+    { name: "Groww",        ats: "greenhouse", token: "groww" },
+    { name: "Postman",      ats: "greenhouse", token: "postman" },
+    { name: "Adyen",        ats: "greenhouse", token: "adyen" },
+    { name: "Zscaler",      ats: "greenhouse", token: "zscaler" },
+    { name: "Appian",       ats: "greenhouse", token: "appian" },
+    { name: "Mixpanel",     ats: "greenhouse", token: "mixpanel" },
+    { name: "GitLab",       ats: "greenhouse", token: "gitlab" },
+    { name: "Roblox",       ats: "greenhouse", token: "roblox" },
+    { name: "Scale AI",     ats: "greenhouse", token: "scaleai" },
+    { name: "Wrike",        ats: "greenhouse", token: "wrike" },
+    { name: "Contentstack", ats: "greenhouse", token: "contentstack" },
+    { name: "HubSpot",      ats: "greenhouse", token: "hubspot" },
+    { name: "Fastly",       ats: "greenhouse", token: "fastly" },
+    { name: "Atlassian",    ats: "lever", token: "atlassian" },
+    { name: "Toptal",       ats: "lever", token: "toptal" },
+    { name: "Deel",         ats: "ashby", token: "deel" },
+    { name: "ClickUp",      ats: "ashby", token: "clickup" },
+    { name: "Cursor",       ats: "ashby", token: "cursor" }
+  ];
 
+  var INDIA_KEYWORDS = [
+    "india", "bengaluru", "bangalore", "mumbai", "delhi", "gurgaon", "gurugram",
+    "noida", "hyderabad", "pune", "chennai", "kolkata", "ahmedabad", "bhubaneswar",
+    "jaipur", "kochi", "coimbatore", "indore"
+  ];
+
+  var AGENCIES = [
+    { name: "Randstad India", url: "https://www.randstad.in/", blurb: "Global staffing major with a large India operation covering permanent, contract, and RPO hiring for MNCs across sectors." },
+    { name: "ManpowerGroup India", url: "https://www.manpowergroup.co.in/", blurb: "Workforce solutions, temporary staffing, and permanent placement for multinational and Indian employers." },
+    { name: "Adecco India", url: "https://www.adecco.co.in/", blurb: "Staffing, RPO, and career transition services; places candidates into MNC subsidiaries and GCCs." },
+    { name: "TeamLease", url: "https://group.teamlease.com/", blurb: "India's largest listed staffing firm — temp staffing, payroll, and apprenticeship placements pan-India." },
+    { name: "Quess Corp", url: "https://www.quesscorp.com/", blurb: "One of India's largest workforce management companies, covering IT, BFSI, retail, and industrial staffing." },
+    { name: "CIEL HR", url: "https://www.cielhr.com/", blurb: "India-based recruitment and staffing across IT, engineering, and professional roles." },
+    { name: "ABC Consultants", url: "https://www.abcconsultants.in/", blurb: "One of India's oldest executive search and recruitment consultancies, mid-to-senior roles." },
+    { name: "Michael Page India", url: "https://www.michaelpage.co.in/", blurb: "Specialist recruitment for mid-to-senior professional and MNC roles across functions." },
+    { name: "Hays India", url: "https://www.hays.co.in/", blurb: "Recruitment across technology, finance, engineering, and life sciences for MNCs in India." },
+    { name: "NLB Services", url: "https://www.nlbservices.com/", blurb: "Focused on GCC (Global Capability Centre) and IT staffing for multinational technology hiring." }
+  ];
+
+  // ---------------- state ----------------
+
+  var currentMode = "student";
   var lastResults = [];
 
-  // ---------- fetching ----------
+  // ---------------- fetching ----------------
 
   function stripHtml(text) {
     if (!text) return "";
@@ -354,41 +378,139 @@
     return (el.textContent || el.innerText || "").replace(/\s+/g, " ").trim();
   }
 
-  function normalizeJobs(raw) {
-    return (raw || [])
-      .filter(function (item) { return item && item.id && item.position; })
-      .map(function (item) {
+  function fetchGreenhouse(source) {
+    var url = "https://boards-api.greenhouse.io/v1/boards/" + source.token + "/jobs?content=true";
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error("gh " + r.status); return r.json(); })
+      .then(function (data) {
+        return (data.jobs || []).map(function (job) {
+          return {
+            id: "gh_" + source.token + "_" + job.id,
+            title: job.title || "",
+            company: source.name,
+            location: (job.location && job.location.name) || "",
+            description: stripHtml(job.content || ""),
+            url: job.absolute_url || "",
+            source: source.name,
+            ats: "Greenhouse"
+          };
+        });
+      })
+      .catch(function () { return []; });
+  }
+
+  function fetchLever(source) {
+    var url = "https://api.lever.co/v0/postings/" + source.token + "?mode=json";
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error("lever " + r.status); return r.json(); })
+      .then(function (data) {
+        return (data || []).map(function (job) {
+          var loc = (job.categories && (job.categories.location || job.categories.allLocations)) || "";
+          if (Array.isArray(loc)) loc = loc.join(", ");
+          return {
+            id: "lever_" + source.token + "_" + job.id,
+            title: job.text || "",
+            company: source.name,
+            location: loc || "",
+            description: stripHtml(job.descriptionPlain || job.description || ""),
+            url: job.hostedUrl || job.applyUrl || "",
+            source: source.name,
+            ats: "Lever"
+          };
+        });
+      })
+      .catch(function () { return []; });
+  }
+
+  function fetchAshby(source) {
+    var url = "https://api.ashbyhq.com/posting-api/job-board/" + source.token;
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error("ashby " + r.status); return r.json(); })
+      .then(function (data) {
+        return (data.jobs || []).map(function (job) {
+          return {
+            id: "ashby_" + source.token + "_" + job.id,
+            title: job.title || "",
+            company: source.name,
+            location: job.location || (job.address && job.address.postalAddress && job.address.postalAddress.addressLocality) || "",
+            description: stripHtml(job.descriptionPlain || job.descriptionHtml || ""),
+            url: job.jobUrl || job.applyUrl || "",
+            source: source.name,
+            ats: "Ashby"
+          };
+        });
+      })
+      .catch(function () { return []; });
+  }
+
+  function fetchAdzuna(appId, appKey) {
+    if (!appId || !appKey) return Promise.resolve([]);
+    var url = "https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=" + encodeURIComponent(appId) +
+      "&app_key=" + encodeURIComponent(appKey) + "&results_per_page=40&content-type=application/json";
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error("adzuna " + r.status); return r.json(); })
+      .then(function (data) {
+        return (data.results || []).map(function (job) {
+          return {
+            id: "adzuna_" + job.id,
+            title: job.title || "",
+            company: (job.company && job.company.display_name) || "",
+            location: (job.location && job.location.display_name) || "",
+            description: stripHtml(job.description || ""),
+            url: job.redirect_url || "",
+            source: (job.company && job.company.display_name) || "Adzuna",
+            ats: "Adzuna"
+          };
+        });
+      })
+      .catch(function () { return []; });
+  }
+
+  function fetchRemoteOk() {
+    var direct = "https://remoteok.com/api";
+    var fallback = "https://api.allorigins.win/raw?url=" + encodeURIComponent(direct);
+    function normalize(raw) {
+      return (raw || []).filter(function (i) { return i && i.id && i.position; }).map(function (item) {
         return {
           id: "remoteok_" + item.id,
           title: (item.position || "").trim(),
           company: (item.company || "").trim(),
           location: item.location || "Remote",
           description: stripHtml(item.description || ""),
-          tags: item.tags || [],
           url: item.url || ("https://remoteok.com/remote-jobs/" + item.id),
-          source: "RemoteOK"
+          source: (item.company || "RemoteOK"),
+          ats: "RemoteOK"
         };
       });
+    }
+    return fetch(direct).then(function (r) { if (!r.ok) throw new Error("direct"); return r.json(); })
+      .catch(function () { return fetch(fallback).then(function (r) { if (!r.ok) throw new Error("fallback"); return r.json(); }); })
+      .then(normalize)
+      .catch(function () { return []; });
   }
 
-  function fetchJobs() {
-    return fetch(REMOTEOK_URL, { headers: { "Accept": "application/json" } })
-      .then(function (res) {
-        if (!res.ok) throw new Error("direct fetch failed: " + res.status);
-        return res.json();
-      })
-      .catch(function () {
-        // Browsers often can't reach RemoteOK's API directly due to CORS.
-        // Fall back to a public read-only CORS relay.
-        return fetch(CORS_FALLBACK).then(function (res) {
-          if (!res.ok) throw new Error("fallback fetch failed: " + res.status);
-          return res.json();
-        });
-      })
-      .then(normalizeJobs);
+  function isIndiaJob(job) {
+    var loc = (job.location || "").toLowerCase();
+    return INDIA_KEYWORDS.some(function (k) { return loc.indexOf(k) !== -1; });
   }
 
-  // ---------- matching (vanilla TF-IDF + cosine similarity) ----------
+  function fetchAllJobs(opts) {
+    var calls = SOURCES.map(function (source) {
+      if (source.ats === "greenhouse") return fetchGreenhouse(source);
+      if (source.ats === "lever") return fetchLever(source);
+      if (source.ats === "ashby") return fetchAshby(source);
+      return Promise.resolve([]);
+    });
+
+    calls.push(fetchAdzuna(opts.adzunaId, opts.adzunaKey));
+    if (opts.includeGlobalRemote) calls.push(fetchRemoteOk());
+
+    return Promise.all(calls).then(function (lists) {
+      var all = [].concat.apply([], lists);
+      var mncJobs = all.filter(function (j) { return j.ats !== "RemoteOK"; });
+      var indiaMnc = mncJobs.filter(isIndiaJob);
+      var remoteGlobal = all.filter(function (j) { return j.ats === "RemoteOK"; });
+      return indiaMnc.concat(remoteGlobal);
+    });
+  }
+
+  // ---------------- matching ----------------
 
   var STOPWORDS = ("a about above after again against all am an and any are aren't as at be because been "
     + "before being below between both but by can't cannot could couldn't did didn't do does doesn't doing "
@@ -404,79 +526,57 @@
   STOPWORDS.forEach(function (w) { STOPSET[w] = true; });
 
   function tokenize(text) {
-    return (text || "")
-      .toLowerCase()
-      .replace(/[^a-z0-9+#. ]/g, " ")
-      .split(/\s+/)
+    return (text || "").toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").split(/\s+/)
       .filter(function (t) { return t.length > 1 && !STOPSET[t]; });
   }
 
   function jobToText(job) {
-    return [job.title, job.company, job.location, (job.tags || []).join(" "), job.description].join(" ");
+    return [job.title, job.company, job.location, job.description].join(" ");
   }
 
   function rankJobs(description, jobs, topN, minScore) {
     var docs = [tokenize(description)].concat(jobs.map(function (j) { return tokenize(jobToText(j)); }));
-
-    // document frequency
     var df = {};
     docs.forEach(function (doc) {
       var seen = {};
-      doc.forEach(function (term) {
-        if (!seen[term]) { df[term] = (df[term] || 0) + 1; seen[term] = true; }
-      });
+      doc.forEach(function (t) { if (!seen[t]) { df[t] = (df[t] || 0) + 1; seen[t] = true; } });
     });
-
     var N = docs.length;
     function vectorize(doc) {
       var tf = {};
-      doc.forEach(function (term) { tf[term] = (tf[term] || 0) + 1; });
-      var vec = {};
-      var norm = 0;
-      Object.keys(tf).forEach(function (term) {
-        var idf = Math.log((N + 1) / ((df[term] || 1) + 1)) + 1;
-        var weight = (tf[term] / doc.length) * idf;
-        vec[term] = weight;
-        norm += weight * weight;
+      doc.forEach(function (t) { tf[t] = (tf[t] || 0) + 1; });
+      var vec = {}, norm = 0;
+      Object.keys(tf).forEach(function (t) {
+        var idf = Math.log((N + 1) / ((df[t] || 1) + 1)) + 1;
+        var w = (tf[t] / doc.length) * idf;
+        vec[t] = w; norm += w * w;
       });
       vec.__norm = Math.sqrt(norm) || 1;
       return vec;
     }
-
-    var queryVec = vectorize(docs[0]);
+    var qv = vectorize(docs[0]);
     var scored = jobs.map(function (job, i) {
-      var jobVec = vectorize(docs[i + 1]);
+      var jv = vectorize(docs[i + 1]);
       var dot = 0;
-      Object.keys(queryVec).forEach(function (term) {
-        if (term === "__norm") return;
-        if (jobVec[term]) dot += queryVec[term] * jobVec[term];
-      });
-      var sim = dot / (queryVec.__norm * jobVec.__norm);
-      return Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
+      Object.keys(qv).forEach(function (t) { if (t !== "__norm" && jv[t]) dot += qv[t] * jv[t]; });
+      var sim = dot / (qv.__norm * jv.__norm);
+      var out = Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
+      return out;
     });
-
-    return scored
-      .filter(function (j) { return j.matchScore >= minScore; })
-      .sort(function (a, b) { return b.matchScore - a.matchScore; })
-      .slice(0, topN);
+    return scored.filter(function (j) { return j.matchScore >= minScore; })
+      .sort(function (a, b) { return b.matchScore - a.matchScore; }).slice(0, topN);
   }
 
-  // ---------- rendering ----------
+  // ---------------- rendering ----------------
 
   function scoreCircle(score) {
     var r = 19, c = 2 * Math.PI * r;
     var pct = Math.max(0, Math.min(100, score));
     var offset = c - (pct / 100) * c;
-    return (
-      '<div class="score">' +
-        '<svg viewBox="0 0 44 44">' +
-          '<circle class="track" cx="22" cy="22" r="' + r + '"></circle>' +
-          '<circle class="fill" cx="22" cy="22" r="' + r + '" stroke-dasharray="' + c + '" ' +
-            'style="stroke-dashoffset:' + c + '" data-target="' + offset + '"></circle>' +
-        '</svg>' +
-        '<div class="num">' + Math.round(pct) + '%</div>' +
-      '</div>'
-    );
+    return '<div class="score"><svg viewBox="0 0 44 44">' +
+      '<circle class="track" cx="22" cy="22" r="' + r + '"></circle>' +
+      '<circle class="fill" cx="22" cy="22" r="' + r + '" stroke-dasharray="' + c + '" style="stroke-dashoffset:' + c + '" data-target="' + offset + '"></circle>' +
+      '</svg><div class="num">' + Math.round(pct) + '%</div></div>';
   }
 
   function escapeHtml(str) {
@@ -485,11 +585,26 @@
     return div.innerHTML;
   }
 
-  function renderResults(jobs) {
+  function linkedinSearchUrl(company, college) {
+    var keywords = company + " (Talent Acquisition OR Recruiter OR \"Human Resources\" OR Campus)";
+    if (college) keywords += " " + college;
+    return "https://www.linkedin.com/search/results/people/?keywords=" + encodeURIComponent(keywords);
+  }
+
+  function campusSearchUrl(company, college) {
+    var q = company + " campus placement careers";
+    if (college) q += " " + college;
+    return "https://www.google.com/search?q=" + encodeURIComponent(q);
+  }
+
+  function renderResults(jobs, college) {
     lastResults = jobs;
+    var resultsEl = document.getElementById("results");
+    var toolbarEl = document.getElementById("toolbar");
+    var headingEl = document.getElementById("results-heading");
 
     if (jobs.length === 0) {
-      resultsEl.innerHTML = '<div class="empty">No matches yet. Try a broader description, or lower the minimum match.</div>';
+      resultsEl.innerHTML = '<div class="empty">No matches yet. Try a broader description, a wider city, or lower the minimum match.</div>';
       toolbarEl.hidden = true;
       return;
     }
@@ -499,21 +614,25 @@
 
     resultsEl.innerHTML = jobs.map(function (job) {
       var snippet = job.description.length > 220 ? job.description.slice(0, 220).trim() + "…" : job.description;
+      var isInternship = /\bintern(ship)?\b/i.test(job.title);
       return (
         '<article class="entry">' +
           '<div class="score-wrap">' + scoreCircle(job.matchScore) + '</div>' +
           '<div>' +
-            '<h2>' + escapeHtml(job.title) + '</h2>' +
-            '<p class="meta">' + escapeHtml(job.company || "Unknown company") + ' — ' + escapeHtml(job.location) +
-              ' — <span class="source">' + escapeHtml(job.source) + '</span></p>' +
+            '<h2>' + escapeHtml(job.title) + (isInternship ? '<span class="badge">Internship</span>' : '') + '</h2>' +
+            '<p class="meta">' + escapeHtml(job.company || "Unknown") + ' — ' + escapeHtml(job.location || "Location not listed") +
+              ' — <span class="source">' + escapeHtml(job.ats) + '</span></p>' +
             '<p class="snippet">' + escapeHtml(snippet) + '</p>' +
-            '<a class="apply" href="' + job.url + '" target="_blank" rel="noopener">View listing</a>' +
+            '<div class="link-row">' +
+              '<a class="action" href="' + job.url + '" target="_blank" rel="noopener">Apply (official)</a>' +
+              '<a class="action" href="' + linkedinSearchUrl(job.company, college) + '" target="_blank" rel="noopener">Find HR on LinkedIn</a>' +
+              '<a class="action" href="' + campusSearchUrl(job.company, college) + '" target="_blank" rel="noopener">Campus hiring page</a>' +
+            '</div>' +
           '</div>' +
         '</article>'
       );
     }).join("");
 
-    // animate only the first (best) match's ring, one deliberate moment
     var firstFill = resultsEl.querySelector(".entry .fill");
     if (firstFill) {
       requestAnimationFrame(function () {
@@ -521,63 +640,113 @@
         firstFill.style.strokeDashoffset = firstFill.getAttribute("data-target");
       });
     }
-    // set the rest instantly
     resultsEl.querySelectorAll(".entry .fill").forEach(function (el, i) {
       if (i === 0) return;
       el.style.strokeDashoffset = el.getAttribute("data-target");
     });
   }
 
+  function renderAgencies() {
+    var el = document.getElementById("agency-list");
+    el.innerHTML = AGENCIES.map(function (a) {
+      return '<div class="agency"><div class="agency-top"><h4>' + escapeHtml(a.name) + '</h4>' +
+        '<a class="visit" href="' + a.url + '" target="_blank" rel="noopener">Visit site</a></div>' +
+        '<p>' + escapeHtml(a.blurb) + '</p></div>';
+    }).join("");
+  }
+
   function downloadCsv(jobs) {
-    var rows = [["match_score", "title", "company", "location", "source", "url"]];
-    jobs.forEach(function (j) {
-      rows.push([j.matchScore, j.title, j.company, j.location, j.source, j.url]);
-    });
+    var rows = [["match_score", "title", "company", "location", "ats", "url"]];
+    jobs.forEach(function (j) { rows.push([j.matchScore, j.title, j.company, j.location, j.ats, j.url]); });
     var csv = rows.map(function (row) {
       return row.map(function (cell) {
         var s = String(cell == null ? "" : cell);
         return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       }).join(",");
     }).join("\n");
-
     var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
-    a.href = url;
-    a.download = "job-matches.csv";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = "job-matches-india.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
-  // ---------- wiring ----------
+  // ---------------- wiring ----------------
+
+  document.querySelectorAll(".mode-toggle button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      currentMode = btn.getAttribute("data-mode");
+      document.querySelectorAll(".mode-toggle button").forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+    });
+  });
+
+  // restore saved Adzuna credentials
+  try {
+    var savedId = localStorage.getItem("jf_adzuna_id");
+    var savedKey = localStorage.getItem("jf_adzuna_key");
+    if (savedId) document.getElementById("adzuna-id").value = savedId;
+    if (savedKey) document.getElementById("adzuna-key").value = savedKey;
+  } catch (e) { /* localStorage unavailable, ignore */ }
+
+  renderAgencies();
+
+  var form = document.getElementById("search-form");
+  var statusEl = document.getElementById("status");
+  var resultsEl = document.getElementById("results");
+  var toolbarEl = document.getElementById("toolbar");
+  var findBtn = document.getElementById("find-btn");
+  var csvBtn = document.getElementById("csv-btn");
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var description = document.getElementById("description").value.trim();
     if (!description) return;
 
+    var college = document.getElementById("college").value.trim();
+    var city = document.getElementById("city").value;
     var minScore = parseFloat(document.getElementById("min-score").value) || 0;
-    var topN = parseInt(document.getElementById("top-n").value, 10) || 15;
+    var topN = parseInt(document.getElementById("top-n").value, 10) || 20;
+    var includeGlobalRemote = document.getElementById("include-remote-global").checked;
+    var adzunaId = document.getElementById("adzuna-id").value.trim();
+    var adzunaKey = document.getElementById("adzuna-key").value.trim();
+
+    try {
+      localStorage.setItem("jf_adzuna_id", adzunaId);
+      localStorage.setItem("jf_adzuna_key", adzunaKey);
+    } catch (e) { /* ignore */ }
+
+    var augmentedQuery = description;
+    if (currentMode === "student") augmentedQuery += " internship intern fresher entry level graduate trainee campus hiring";
+    else augmentedQuery += " experienced professional full time role";
+    if (college) augmentedQuery += " " + college;
+    if (city) augmentedQuery += " " + city;
 
     findBtn.disabled = true;
     findBtn.textContent = "Reading listings…";
-    statusEl.textContent = "Fetching live listings from RemoteOK…";
+    statusEl.textContent = "Fetching live listings from " + SOURCES.length + " company boards" + (adzunaId ? " + Adzuna" : "") + "…";
     toolbarEl.hidden = true;
     resultsEl.innerHTML = "";
 
-    fetchJobs()
+    fetchAllJobs({ adzunaId: adzunaId, adzunaKey: adzunaKey, includeGlobalRemote: includeGlobalRemote })
       .then(function (jobs) {
-        statusEl.textContent = "Read " + jobs.length + " listings. Matching against your description…";
-        var ranked = rankJobs(description, jobs, topN, minScore);
+        if (city && city !== "remote") {
+          var cityFiltered = jobs.filter(function (j) { return (j.location || "").toLowerCase().indexOf(city) !== -1; });
+          if (cityFiltered.length >= 3) jobs = cityFiltered; // only narrow if it doesn't wipe out results
+        } else if (city === "remote") {
+          jobs = jobs.filter(function (j) { return /remote/i.test(j.location || ""); });
+        }
+        statusEl.textContent = "Read " + jobs.length + " India-relevant listings. Matching against your description…";
+        var ranked = rankJobs(augmentedQuery, jobs, topN, minScore);
         statusEl.textContent = "";
-        renderResults(ranked);
+        renderResults(ranked, college);
       })
       .catch(function (err) {
         console.error(err);
         statusEl.textContent = "";
-        resultsEl.innerHTML = '<div class="error">Couldn\'t reach the job listing feed. Check your connection and try again — if it keeps failing, RemoteOK or the fallback relay may be temporarily down.</div>';
+        resultsEl.innerHTML = '<div class="error">Couldn\'t reach the listing feeds. Check your connection and try again.</div>';
         toolbarEl.hidden = true;
       })
       .finally(function () {
@@ -586,9 +755,7 @@
       });
   });
 
-  csvBtn.addEventListener("click", function () {
-    if (lastResults.length) downloadCsv(lastResults);
-  });
+  csvBtn.addEventListener("click", function () { if (lastResults.length) downloadCsv(lastResults); });
 })();
 </script>
 
