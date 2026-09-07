@@ -114,6 +114,42 @@ Some browsers/networks block third-party API calls. Open the browser console
 reachable, at least some sources should return results even if a few
 individual company tokens are stale.
 
+## Why some searches (VLSI, core networking) come back empty
+
+The live source list is ~68 companies on Greenhouse, Lever, or Ashby — and
+that's a real structural constraint, not a bug. Companies that expose those
+public ATS APIs skew heavily toward software/SaaS/fintech, regardless of
+which country they're headquartered in. Semiconductor and chip-design
+employers (Qualcomm, Intel, NVIDIA, Texas Instruments, Broadcom, Synopsys,
+Cadence) and core networking-hardware vendors (Cisco, Arista, Juniper) run
+their own proprietary hiring systems (Workday, SuccessFactors, custom
+portals) with no public feed to pull from — so a live search for "VLSI" or
+"network engineer" correctly returns nothing from this source list, and the
+app tells you why and points to the dedicated career-page directory instead
+of silently failing or, worse, showing an unrelated result.
+
+**Adding companies from more countries doesn't change this** — it broadens
+general tech/software coverage, but VLSI and core-networking hiring will
+still route to the directory regardless of which countries are represented
+in the live sources, because it's about which ATS a company uses, not where
+it's headquartered.
+
+### Country coverage in the live sources
+
+The ~68 live sources now include companies headquartered in the US, Europe
+(Revolut, N26, GoCardless, Typeform, Celonis, Personio, Pleo), Canada
+(Wealthsimple, Hootsuite, Clio), Japan (Mercari, SmartNews), and India
+(Groww, Postman, Contentstack), all filtered down to their India-located
+postings.
+
+**China and Russia are deliberately not included.** Major employers in both
+countries run their own hiring systems rather than Greenhouse/Lever/Ashby, so
+there's no genuine public API source to pull from — adding entries for them
+would mean guessing at tokens that don't exist, which would just add dead
+weight rather than real coverage. If you know of a specific company from
+either country with a genuine public Greenhouse/Lever/Ashby board, add it to
+`SOURCES` yourself (see below) and it'll work the same way.
+
 ## Extending it
 
 - **Add a company**: append `{ name, ats, token }` to the `SOURCES` array near
