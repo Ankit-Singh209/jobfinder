@@ -264,7 +264,7 @@
         <div class="row">
           <div class="field-group">
             <label for="min-score">Minimum match (0–100)</label>
-            <input type="text" id="min-score" value="4" inputmode="numeric">
+            <input type="text" id="min-score" value="8" inputmode="numeric">
           </div>
           <div class="field-group">
             <label for="top-n">How many results</label>
@@ -317,6 +317,12 @@
         <li>A real recruiter's email matches the company's domain (e.g. <code>@company.com</code>), not a free Gmail/Yahoo address.</li>
       </ul>
     </div>
+  </section>
+
+  <section>
+    <h2 class="section-heading">Semiconductor, VLSI &amp; Networking Hardware — career pages</h2>
+    <p class="section-sub">VLSI/chip-design and core networking-hardware hiring is concentrated at these employers, and almost none of them expose a public job API — so unlike the live search above, these are direct links you browse yourself.</p>
+    <div class="agency-list" id="hardware-list"></div>
   </section>
 
   <section>
@@ -464,6 +470,19 @@
     { name: "JPMorganChase", url: "https://careers.jpmorgan.com/", blurb: "Technology and finance roles, several based in India GCCs." },
     { name: "SAP", url: "https://www.sap.com/about/careers.html", blurb: "Enterprise software careers, including SAP Labs India (Bengaluru, Gurugram, Pune)." },
     { name: "Cisco", url: "https://jobs.cisco.com/", blurb: "Networking and infrastructure roles — relevant for network engineering candidates." }
+  ];
+
+  var HARDWARE_COMPANIES = [
+    { name: "Intel India", url: "https://jobs.intel.com/", blurb: "Design, verification, and process engineering roles — large Bengaluru design centre." },
+    { name: "Qualcomm India", url: "https://www.qualcomm.com/company/careers/internships-and-early-in-career-opportunities/india", blurb: "Mobile SoC, modem, and chip design roles — internships and early-career page linked directly." },
+    { name: "NVIDIA", url: "https://www.nvidia.com/en-us/about-nvidia/careers/", blurb: "GPU and AI chip design, architecture, and verification roles." },
+    { name: "AMD India", url: "https://careers.amd.com/", blurb: "CPU/GPU design, verification, and physical design — Bengaluru and Hyderabad." },
+    { name: "Texas Instruments", url: "https://careers.ti.com/", blurb: "Analog and embedded semiconductor design, with a large Bengaluru presence." },
+    { name: "Synopsys", url: "https://www.synopsys.com/careers.html", blurb: "EDA tools and silicon IP — common employer for RTL/verification engineers." },
+    { name: "Cadence", url: "https://www.cadence.com/en_US/home/company/careers.html", blurb: "EDA and design IP — Pune and Noida design centres." },
+    { name: "Micron India", url: "https://careers.micron.com/", blurb: "Memory chip design and manufacturing engineering, expanding India operations." },
+    { name: "Broadcom", url: "https://www.broadcom.com/careers", blurb: "Networking chips, broadband, and embedded processors." },
+    { name: "Tessolve", url: "https://www.tessolve.com/careers/", blurb: "India-based VLSI/semiconductor design and test services company — regularly hires freshers." }
   ];
 
   var AGENCIES = [
@@ -682,6 +701,18 @@
     return [job.title, job.company, job.location, job.description].join(" ");
   }
 
+  // Generic job-posting filler that inflates similarity scores without indicating
+  // real relevance (e.g. "team", "experience", "opportunity" appear in nearly every
+  // posting regardless of domain, so they shouldn't count toward "this is a real match").
+  var FILLER_WORDS = ("experience experienced years year strong skills ability including using team "
+    + "role roles opportunity opportunities join joining work working company companies looking "
+    + "help build building product products customer customers business great excellent knowledge "
+    + "responsibilities requirements preferred required plus benefits candidate candidates apply "
+    + "position positions grow growing culture environment fast paced passionate collaborative "
+    + "mission impact world class").split(" ");
+  var FILLER_SET = {};
+  FILLER_WORDS.forEach(function (w) { FILLER_SET[w] = true; });
+
   function rankJobs(description, jobs, topN, minScore) {
     if (jobs.length === 0) return [];
     var docs = [tokenize(description)].concat(jobs.map(function (j) { return tokenize(jobToText(j)); }));
@@ -704,14 +735,30 @@
       return vec;
     }
     var qv = vectorize(docs[0]);
+
+    // Pick the query's most distinguishing (highest-weight, non-filler) terms.
+    // A job must contain at least one of these VERBATIM to count as a real match —
+    // this is what stops an unrelated "AI implementation" role from surfacing just
+    // because it shares generic words like "engineering" or "experience" with a
+    // "network engineering" query.
+    var significantTerms = Object.keys(qv)
+      .filter(function (t) { return t !== "__norm" && t.length >= 4 && !FILLER_SET[t]; })
+      .sort(function (a, b) { return qv[b] - qv[a]; })
+      .slice(0, 6);
+
     var scored = jobs.map(function (job, i) {
       var jv = vectorize(docs[i + 1]);
       var dot = 0;
       Object.keys(qv).forEach(function (t) { if (t !== "__norm" && jv[t]) dot += qv[t] * jv[t]; });
       var sim = dot / (qv.__norm * jv.__norm);
-      return Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10 });
+      var text = jobToText(job).toLowerCase();
+      var hasSignificantOverlap = significantTerms.length === 0 ||
+        significantTerms.some(function (t) { return text.indexOf(t) !== -1; });
+      return Object.assign({}, job, { matchScore: Math.round(sim * 1000) / 10, hasSignificantOverlap: hasSignificantOverlap });
     });
-    return scored.filter(function (j) { return j.matchScore >= minScore; })
+
+    return scored
+      .filter(function (j) { return j.matchScore >= minScore && j.hasSignificantOverlap; })
       .sort(function (a, b) { return b.matchScore - a.matchScore; }).slice(0, topN);
   }
 
@@ -745,7 +792,25 @@
     return "https://www.google.com/search?q=" + encodeURIComponent(q);
   }
 
-  function renderResults(jobs, college) {
+  // Domains where the live source list (mostly SaaS/software companies on
+  // Greenhouse/Lever/Ashby) has little or no real coverage — point people to the
+  // right static directory instead of silently returning nothing or, worse,
+  // an unrelated "best available" result.
+  var DOMAIN_HINTS = [
+    { re: /\b(vlsi|asic|rtl|verilog|systemverilog|chip design|semiconductor|tapeout|physical design|analog design|soc\b)\b/i,
+      msg: "VLSI and chip-design hiring happens mostly at semiconductor majors (Qualcomm, Intel, Nvidia, Texas Instruments, Broadcom, Synopsys, Cadence, Marvell) — none of them expose a public job API, so check the \"Semiconductor, VLSI & Networking Hardware\" career-page directory below." },
+    { re: /\b(network engineer|networking|ccna|ccnp|routing|switching|bgp|ospf|network security)\b/i,
+      msg: "Most core networking-hardware roles (Cisco, Arista, Juniper, HPE Aruba) also aren't on the ATSs this tool searches live — see the \"Semiconductor, VLSI & Networking Hardware\" directory below for those." },
+    { re: /\b(mechanical|civil|electrical engineer|core engineering|manufacturing|production engineer)\b/i,
+      msg: "Core/mechanical engineering hiring is concentrated at large industrial and IT-services employers — check the \"Big MNCs & IT majors\" directory below, or the staffing agencies, for these roles." }
+  ];
+
+  function domainHint(description) {
+    var hit = DOMAIN_HINTS.find(function (d) { return d.re.test(description || ""); });
+    return hit ? hit.msg : null;
+  }
+
+  function renderResults(jobs, college, description) {
     lastResults = jobs;
     var resultsEl = document.getElementById("results");
     var toolbarEl = document.getElementById("toolbar");
@@ -755,6 +820,8 @@
       var modeMsg = currentMode === "student"
         ? "No internships matched right now. MNC internship postings open in cycles (often Dec–Feb and May–Jul) — try a broader description, a wider city, or check back soon."
         : "No matches yet. Try a broader description, a wider city, or lower the minimum match.";
+      var hint = domainHint(description);
+      if (hint) modeMsg += "<br><br>" + hint;
       resultsEl.innerHTML = '<div class="empty">' + modeMsg + '</div>';
       toolbarEl.hidden = true;
       document.getElementById("map-wrap").hidden = true;
@@ -910,6 +977,7 @@
     if (savedKey) document.getElementById("adzuna-key").value = savedKey;
   } catch (e) { /* localStorage unavailable, ignore */ }
 
+  renderAgencyGroup("hardware-list", HARDWARE_COMPANIES);
   renderAgencyGroup("bigmnc-list", BIG_MNCS);
   renderAgencyGroup("agency-list", AGENCIES);
   populateCityDatalist();
@@ -1001,7 +1069,7 @@
         statusEl.textContent = "Read " + jobs.length + " matching-category listings. Ranking against your description…";
         var ranked = rankJobs(augmentedQuery, jobs, topN, minScore);
         statusEl.textContent = "";
-        renderResults(ranked, college);
+        renderResults(ranked, college, description);
       })
       .catch(function (err) {
         console.error(err);
