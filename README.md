@@ -23,6 +23,19 @@ to get started.
   Microsoft, Amazon, IBM, Accenture, TCS, Infosys, Wipro, Cognizant, HCLTech,
   Capgemini, Deloitte, EY, JPMorganChase, SAP, Cisco) whose hiring systems
   don't expose a public API, so they're linked directly instead of fetched.
+- **Semiconductor, VLSI & Networking Hardware career pages** — a separate
+  directory (Intel, Qualcomm, NVIDIA, AMD, Texas Instruments, Synopsys,
+  Cadence, Micron, Broadcom, Tessolve) for the same reason: this hiring is
+  concentrated at companies that don't use Greenhouse/Lever/Ashby, so a live
+  search for "VLSI" or "network engineer" against the ~50 mostly-SaaS
+  companies in the live source list will correctly find nothing — this
+  directory is where that hiring actually is.
+- **Matching requires genuine overlap, not just fuzzy similarity** — a job
+  must share at least one of the *distinguishing* terms from your description
+  (not generic filler like "team" or "experience") to be shown at all. This
+  is what stops, e.g., a "network engineering" search from surfacing an
+  unrelated "AI Implementation Engineer" posting just because both mention
+  "engineering."
 - **Staffing agency directory** — a static, hand-checked list of established
   agencies that place candidates into MNCs in India (Randstad, TeamLease,
   Quess Corp, CIEL HR, ABC Consultants, Michael Page, Hays, NLB Services, and
