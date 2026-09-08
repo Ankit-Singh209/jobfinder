@@ -1,5 +1,24 @@
 # India Job & Internship Finder — static site
 
+## What's new in this redesign
+
+Full UI rebuild into an actual job-board layout, on top of the same live
+data engine as before:
+
+- **Tabbed navigation** — Find Jobs / Saved / Directories, like a real site
+- **Dark mode**, remembered across visits (or follows your OS preference)
+- **Saved jobs** — star any listing, kept in your browser via local storage,
+  browsable in its own tab
+- **Sort** — best match, newest first, or company A–Z
+- **Company name filter** — narrow results by typing a company name
+- **Pagination** — "Load more" instead of one long dump of results
+- **Company logos** — pulled from Clearbit's public logo API where a domain
+  can be guessed from the company name; falls back to a clean initial-letter
+  badge if the logo doesn't load, so nothing ever shows a broken image
+- **"New" badge** on listings posted in the last 10 days
+- **List/Map toggle** moved into the results sidebar alongside other filters
+
+
 A single-file tool for students and professionals job-hunting in India. Publish
 it directly on GitHub Pages — no backend, no build step, no API key required
 to get started.
