@@ -1,5 +1,26 @@
 # India Job & Internship Finder — static site
 
+## Engineering discipline filter and direct platform search links
+
+Two more additions that directly address the software-vs-hardware coverage
+gap:
+
+- **Engineering field dropdown** in the search form (Computer Science/IT,
+  Electronics & VLSI, Mechanical, Civil, Electrical, Chemical, Aerospace,
+  Industrial). Picking a non-software discipline biases the live-search
+  ranking toward that field where possible, and flags the result as needing
+  the platform links below.
+- **"Search directly on India's job platforms" panel** — appears above every
+  search's results with accurate, pre-built search links to **Naukri**,
+  **Internshala**, **Indeed India**, and **LinkedIn Jobs**, using your
+  description/discipline/city. This is the honest fix for disciplines the
+  live search structurally can't reach: none of these four platforms expose
+  a public API, so results aren't fetched into the page, but the links are
+  correctly built and take you straight to real, live results on each site —
+  which collectively cover far more of the Indian job market (all
+  disciplines, all company sizes) than the ~68-company live source list ever
+  could.
+
 ## What's new in this redesign
 
 Full UI rebuild into an actual job-board layout, on top of the same live
