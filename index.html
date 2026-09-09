@@ -183,13 +183,14 @@
     padding: 0.9rem 1.1rem; margin-bottom: 1.1rem;
   }
   .platform-links h4 { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text); }
-  .platform-links .plinks-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .platform-links a {
+  .plinks-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .plinks-row a, a.plink-btn {
     font-size: 0.83rem; font-weight: 600; color: var(--primary); background: var(--surface);
     border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 0.85rem; text-decoration: none;
   }
-  .platform-links a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .plinks-row a:hover, a.plink-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
   .platform-links p.why { margin: 0.6rem 0 0; font-size: 0.78rem; color: var(--text-muted); }
+  .empty-state .plinks-row a { background: var(--bg); }
   .map-search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
   .map-search input { flex: 1; }
   #map { height: 380px; border: 1px solid var(--border); border-radius: var(--radius); }
@@ -1077,25 +1078,36 @@
     return "https://www.linkedin.com/jobs/search/?" + q;
   }
 
-  function renderPlatformLinks(description, disciplineKey, city, mode) {
-    var wrap = document.getElementById("platform-links");
+  var lastPlatformLinks = null; // { keyword, links, isHardware } — reused in the empty-state card
+
+  function buildPlatformLinks(description, disciplineKey, city, mode) {
     var keyword = deriveSearchKeyword(description, disciplineKey, mode);
     var cityLabel = city && city !== "remote" ? city : "";
     var meta = DISCIPLINE_META[disciplineKey] || DISCIPLINE_META.any;
-
     var links = [
       { label: "Naukri", url: naukriUrl(keyword, cityLabel) },
       { label: "Internshala", url: internshalaUrl(keyword) },
       { label: "Indeed India", url: indeedIndiaUrl(keyword, cityLabel) },
       { label: "LinkedIn Jobs", url: linkedinJobsUrl(keyword, cityLabel) }
     ];
+    return { keyword: keyword, links: links, isHardware: meta.isHardware, disciplineLabel: meta.label };
+  }
+
+  function platformLinksRowHtml(data) {
+    return '<div class="plinks-row">' +
+      data.links.map(function (l) { return '<a href="' + l.url + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + ' ↗</a>'; }).join("") +
+      '</div>';
+  }
+
+  function renderPlatformLinks(description, disciplineKey, city, mode) {
+    var wrap = document.getElementById("platform-links");
+    var data = buildPlatformLinks(description, disciplineKey, city, mode);
+    lastPlatformLinks = data;
 
     wrap.innerHTML =
-      '<h4>Search directly on India\'s job platforms for "' + escapeHtml(keyword) + '"</h4>' +
-      '<div class="plinks-row">' +
-      links.map(function (l) { return '<a href="' + l.url + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + ' ↗</a>'; }).join("") +
-      '</div>' +
-      (meta.isHardware ? '<p class="why">These four cover far more of the Indian job market than the live search above, which is limited to ~68 mostly-software companies — this is the more complete path for ' + escapeHtml(meta.label.toLowerCase()) + ' roles.</p>' : '');
+      '<h4>Search directly on India\'s job platforms for "' + escapeHtml(data.keyword) + '"</h4>' +
+      platformLinksRowHtml(data) +
+      (data.isHardware ? '<p class="why">These four cover far more of the Indian job market than the live search above, which is limited to ~68 mostly-software companies — this is the more complete path for ' + escapeHtml(data.disciplineLabel.toLowerCase()) + ' roles.</p>' : '');
     wrap.hidden = false;
   }
 
@@ -1136,11 +1148,18 @@
 
     if (allRankedJobs.length === 0) {
       var modeMsg = currentMode === "student"
-        ? "No internships matched right now. MNC internship postings open in cycles (often Dec–Feb and May–Jul) — try a broader description, a wider city, or check the Directories tab."
-        : "No matches yet. Try a broader description, a wider city, or check the Directories tab.";
+        ? "No internships matched right now among the ~68 live company sources. MNC internship postings also open in cycles (often Dec–Feb and May–Jul)."
+        : "No matches yet among the ~68 live company sources.";
       var hint = domainHint(lastDescription);
-      if (hint) modeMsg += " " + hint;
-      resultsEl.innerHTML = '<div class="empty-state">' + escapeHtml(modeMsg) + '</div>';
+      var linksBlock = "";
+      if (lastPlatformLinks) {
+        linksBlock = '<p style="margin:0.9rem 0 0.5rem;font-weight:600;">Try these instead — they cover far more of the market:</p>' +
+          platformLinksRowHtml(lastPlatformLinks);
+      }
+      resultsEl.innerHTML = '<div class="empty-state" style="text-align:left;">' +
+        '<p style="margin:0;">' + escapeHtml(modeMsg) + (hint ? " " + escapeHtml(hint.replace(/ — see the Directories tab\.?$| — check the Directories tab\.?$/i, "")) : "") + '</p>' +
+        linksBlock +
+        '</div>';
       countEl.textContent = "";
       loadMoreWrap.hidden = true;
       return;
