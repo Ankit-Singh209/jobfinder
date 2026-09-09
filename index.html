@@ -177,6 +177,19 @@
   .toolbar-btns { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 
   .map-wrap { margin-bottom: 1.2rem; }
+
+  .platform-links {
+    background: var(--primary-soft); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.9rem 1.1rem; margin-bottom: 1.1rem;
+  }
+  .platform-links h4 { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text); }
+  .platform-links .plinks-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .platform-links a {
+    font-size: 0.83rem; font-weight: 600; color: var(--primary); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 0.85rem; text-decoration: none;
+  }
+  .platform-links a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .platform-links p.why { margin: 0.6rem 0 0; font-size: 0.78rem; color: var(--text-muted); }
   .map-search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
   .map-search input { flex: 1; }
   #map { height: 380px; border: 1px solid var(--border); border-radius: var(--radius); }
@@ -319,6 +332,19 @@
 
           <div class="quick-row">
             <div class="quick-field">
+              <label for="discipline">Engineering field</label>
+              <select id="discipline">
+                <option value="any">Any / Computer Science &amp; IT</option>
+                <option value="electronics">Electronics &amp; Communication / VLSI</option>
+                <option value="mechanical">Mechanical</option>
+                <option value="civil">Civil</option>
+                <option value="electrical">Electrical &amp; Power</option>
+                <option value="chemical">Chemical</option>
+                <option value="aerospace">Aerospace &amp; Automotive</option>
+                <option value="industrial">Industrial &amp; Production</option>
+              </select>
+            </div>
+            <div class="quick-field">
               <label for="college">College / university</label>
               <input type="text" id="college" placeholder="e.g. VIT Vellore">
             </div>
@@ -407,6 +433,8 @@
         <div class="results-toolbar">
           <div class="results-count" id="results-count"></div>
         </div>
+
+        <div class="platform-links" id="platform-links" hidden></div>
 
         <div class="map-wrap" id="map-wrap" hidden>
           <div class="map-search">
@@ -658,6 +686,20 @@
     { re: /\b(mechanical|civil|electrical engineer|core engineering|manufacturing|production engineer)\b/i,
       msg: "Core/mechanical engineering hiring is concentrated at large industrial employers — check the Directories tab." }
   ];
+
+  // Non-software engineering disciplines: the live source list (Greenhouse/Lever/Ashby
+  // companies) is structurally software-biased, so these always get the direct
+  // platform-search links surfaced, not just an empty-state apology.
+  var DISCIPLINE_META = {
+    any:        { label: "", isHardware: false },
+    electronics:{ label: "Electronics and Communication VLSI embedded", isHardware: true },
+    mechanical: { label: "Mechanical engineering", isHardware: true },
+    civil:      { label: "Civil engineering", isHardware: true },
+    electrical: { label: "Electrical power engineering", isHardware: true },
+    chemical:   { label: "Chemical engineering", isHardware: true },
+    aerospace:  { label: "Aerospace automotive engineering", isHardware: true },
+    industrial: { label: "Industrial production engineering", isHardware: true }
+  };
 
   // ================= state =================
 
@@ -998,6 +1040,65 @@
     return "https://www.google.com/search?q=" + encodeURIComponent(q);
   }
 
+  // ---- direct search links to India's actual job/internship platforms ----
+  // These exist because the live-fetch source list (Greenhouse/Lever/Ashby) is
+  // structurally software-biased — almost no mechanical, civil, electrical, or
+  // VLSI employer uses those systems. Rather than leave those searches empty,
+  // build accurate direct search URLs to where that hiring actually is.
+
+  function slugify(s) {
+    return (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-+|-+$)/g, "");
+  }
+
+  function deriveSearchKeyword(description, disciplineKey, mode) {
+    var meta = DISCIPLINE_META[disciplineKey] || DISCIPLINE_META.any;
+    if (meta.label) return meta.label + (mode === "student" ? " internship" : " job");
+    var toks = tokenize(description).filter(function (t) { return t.length >= 4 && !FILLER_SET[t]; });
+    var seen = {}, top = [];
+    toks.forEach(function (t) { if (!seen[t] && top.length < 5) { seen[t] = true; top.push(t); } });
+    var kw = top.join(" ") || (mode === "student" ? "internship" : "jobs");
+    return kw + (mode === "student" ? " internship" : " job");
+  }
+
+  function naukriUrl(keyword, city) {
+    var k = slugify(keyword) || "jobs";
+    return city ? "https://www.naukri.com/" + k + "-jobs-in-" + slugify(city)
+                : "https://www.naukri.com/" + k + "-jobs";
+  }
+  function internshalaUrl(keyword) {
+    return "https://www.google.com/search?q=" + encodeURIComponent("site:internshala.com " + keyword);
+  }
+  function indeedIndiaUrl(keyword, city) {
+    var q = "q=" + encodeURIComponent(keyword) + "&l=" + encodeURIComponent(city ? city + ", India" : "India");
+    return "https://in.indeed.com/jobs?" + q;
+  }
+  function linkedinJobsUrl(keyword, city) {
+    var q = "keywords=" + encodeURIComponent(keyword) + "&location=" + encodeURIComponent(city ? city + ", India" : "India");
+    return "https://www.linkedin.com/jobs/search/?" + q;
+  }
+
+  function renderPlatformLinks(description, disciplineKey, city, mode) {
+    var wrap = document.getElementById("platform-links");
+    var keyword = deriveSearchKeyword(description, disciplineKey, mode);
+    var cityLabel = city && city !== "remote" ? city : "";
+    var meta = DISCIPLINE_META[disciplineKey] || DISCIPLINE_META.any;
+
+    var links = [
+      { label: "Naukri", url: naukriUrl(keyword, cityLabel) },
+      { label: "Internshala", url: internshalaUrl(keyword) },
+      { label: "Indeed India", url: indeedIndiaUrl(keyword, cityLabel) },
+      { label: "LinkedIn Jobs", url: linkedinJobsUrl(keyword, cityLabel) }
+    ];
+
+    wrap.innerHTML =
+      '<h4>Search directly on India\'s job platforms for "' + escapeHtml(keyword) + '"</h4>' +
+      '<div class="plinks-row">' +
+      links.map(function (l) { return '<a href="' + l.url + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + ' ↗</a>'; }).join("") +
+      '</div>' +
+      (meta.isHardware ? '<p class="why">These four cover far more of the Indian job market than the live search above, which is limited to ~68 mostly-software companies — this is the more complete path for ' + escapeHtml(meta.label.toLowerCase()) + ' roles.</p>' : '');
+    wrap.hidden = false;
+  }
+
   function wireSaveButtons(container) {
     container.querySelectorAll(".save-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1273,6 +1374,7 @@
 
     var college = document.getElementById("college").value.trim();
     var city = document.getElementById("city").value;
+    var discipline = document.getElementById("discipline").value;
     var minScore = parseFloat(document.getElementById("min-score").value) || 0;
     var topN = parseInt(document.getElementById("top-n").value, 10) || 25;
     var includeGlobalRemote = document.getElementById("include-remote-global").checked;
@@ -1285,11 +1387,15 @@
       localStorage.setItem("jf_adzuna_key", adzunaKey);
     } catch (e) { /* ignore */ }
 
+    var disciplineMeta = DISCIPLINE_META[discipline] || DISCIPLINE_META.any;
     var augmentedQuery = description;
+    if (disciplineMeta.label) augmentedQuery += " " + disciplineMeta.label;
     if (currentMode === "student") augmentedQuery += " internship intern fresher entry level graduate trainee campus hiring";
     else augmentedQuery += " experienced professional full time role";
     if (college) augmentedQuery += " " + college;
     if (city) augmentedQuery += " " + city;
+
+    renderPlatformLinks(description, discipline, city, currentMode);
 
     var findBtn = document.getElementById("find-btn");
     var statusEl = document.getElementById("status");
